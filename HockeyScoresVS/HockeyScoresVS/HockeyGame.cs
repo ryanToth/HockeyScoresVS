@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
-    public class HockeyGame
+    public class HockeyGame : INotifyPropertyChanged
     {
         private string _id;
 
@@ -16,11 +17,38 @@ namespace HockeyScoresVS
 
         public Team AwayTeam { get; }
 
-        public int MinutesLeftInPeriod { get; set; }
+        private int _minutesLeftInPeriod;
+        public int MinutesLeftInPeriod
+        {
+            get
+            {
+                return _minutesLeftInPeriod;
+            }
 
-        public int SecondsLeftInMinute { get; set; }
+            set
+            {
+                _minutesLeftInPeriod = value;
+                OnNotifyPropertyChanged("TimeLeftInPeriod");
+            }
+        }
+
+        private int _secondsLeftInMinute;
+        public int SecondsLeftInMinute
+        {
+            get
+            {
+                return _secondsLeftInMinute;
+            }
+
+            set
+            {
+                _secondsLeftInMinute = value;
+                OnNotifyPropertyChanged("TimeLeftInPeriod");
+            }
+        }
 
         private string _period;
+
         public string Period
         {
             get
@@ -34,6 +62,12 @@ namespace HockeyScoresVS
                     default:
                         return _period;
                 }
+            }
+
+            set
+            {
+                _period = value;
+                OnNotifyPropertyChanged("Period");
             }
         }
 
@@ -65,6 +99,15 @@ namespace HockeyScoresVS
             }
         }
 
+        // TODO: Implement
+        private bool HasGameStartedYet
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id)
         {
             this.StartTime = startTime;
@@ -76,13 +119,18 @@ namespace HockeyScoresVS
             this._period = "1";
         }
 
-        // TODO: Implement
-        private bool HasGameStartedYet
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnNotifyPropertyChanged(string propertyName)
         {
-            get
+            if (PropertyChanged != null)
             {
-                return true;
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        #endregion
     }
 }
