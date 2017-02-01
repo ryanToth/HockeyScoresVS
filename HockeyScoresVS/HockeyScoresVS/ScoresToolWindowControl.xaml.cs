@@ -24,8 +24,6 @@ namespace HockeyScoresVS
         public ScoresToolWindowControl()
         {
             this.InitializeComponent();
-            this.MaxWidth = 265;
-            this.MinWidth = 265;
         }
     }
 }

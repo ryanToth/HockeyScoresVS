@@ -8,13 +8,34 @@ namespace HockeyScoresVS
 {
     public class HockeyGame
     {
-        public string StartTime { get; set; }
-        public Team HomeTeam { get; set; }
-        public Team AwayTeam { get; set; }
-        public int MinutesLeftInPeriod { get; set; }
-        public int SecondsLeftInMinute { get; set; }
-        public string Period { get; set; }
         private string _id;
+
+        public string StartTime { get; }
+
+        public Team HomeTeam { get; }
+
+        public Team AwayTeam { get; }
+
+        public int MinutesLeftInPeriod { get; set; }
+
+        public int SecondsLeftInMinute { get; set; }
+
+        private string _period;
+        public string Period
+        {
+            get
+            {
+                switch (_period)
+                {
+                    case "1":
+                    case "2":
+                    case "3":
+                        return $"Period {_period}";
+                    default:
+                        return _period;
+                }
+            }
+        }
 
         public int HomeTeamScore
         {
@@ -44,7 +65,6 @@ namespace HockeyScoresVS
             }
         }
 
-
         public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id)
         {
             this.StartTime = startTime;
@@ -53,7 +73,16 @@ namespace HockeyScoresVS
             this._id = id;
             this.MinutesLeftInPeriod = 20;
             this.SecondsLeftInMinute = 0;
-            this.Period = "1";
+            this._period = "1";
+        }
+
+        // TODO: Implement
+        private bool HasGameStartedYet
+        {
+            get
+            {
+                return true;
+            }
         }
     }
 }
