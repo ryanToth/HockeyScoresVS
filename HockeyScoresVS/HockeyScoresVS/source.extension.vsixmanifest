@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="HockeyScoresVS.HP Inc..b4070579-1506-4285-b1b6-c3e65778dce8" Version="1.0" Language="en-US" Publisher="HP Inc." />
+    <Identity Id="HockeyScoresVS.RyanToth" Version="1.0" Language="en-US" Publisher="Ryan Toth" />
     <DisplayName>HockeyScoresVS</DisplayName>
-    <Description>Empty VSIX Project.</Description>
+    <Description xml:space="preserve">A Visual Studio Extension that provides a tool window with up-to-date scores of all of the day's NHL games</Description>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0]" />
