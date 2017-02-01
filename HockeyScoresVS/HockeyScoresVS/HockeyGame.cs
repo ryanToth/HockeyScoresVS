@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
     public class HockeyGame : INotifyPropertyChanged
     {
+        private const int DataRefreshInterval = 5000;
+        private Timer _refreshDataTimer;
         private string _id;
 
         public string StartTime { get; }
@@ -100,11 +103,11 @@ namespace HockeyScoresVS
         }
 
         // TODO: Implement
-        private bool HasGameStartedYet
+        public bool HasGameStartedYet
         {
             get
             {
-                return false;
+                return true;
             }
         }
 
@@ -117,6 +120,12 @@ namespace HockeyScoresVS
             this.MinutesLeftInPeriod = 20;
             this.SecondsLeftInMinute = 0;
             this._period = "1";
+            _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), 0, DataRefreshInterval);
+        }
+
+        private void RefreshGameData(object state)
+        {
+
         }
 
         #region INotifyPropertyChanged Members
