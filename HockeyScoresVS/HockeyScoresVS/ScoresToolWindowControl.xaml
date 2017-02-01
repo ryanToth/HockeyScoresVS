@@ -1,0 +1,24 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:HockeyScoresVS" x:Class="HockeyScoresVS.ScoresToolWindowControl"
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="280"
+             x:Name="NHLScores">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="UITemplates.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid HorizontalAlignment="Center">
+        <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding Mode=OneWay}">
+            <ListBox.DataContext>
+                <local:TodayGames/>
+            </ListBox.DataContext>
+        </ListBox>
+    </Grid>
+</UserControl>
