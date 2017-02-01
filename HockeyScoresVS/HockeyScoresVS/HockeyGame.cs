@@ -123,9 +123,9 @@ namespace HockeyScoresVS
             _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), 0, DataRefreshInterval);
         }
 
-        private void RefreshGameData(object state)
+        private async void RefreshGameData(object state)
         {
-
+            await Task.Yield();
         }
 
         #region INotifyPropertyChanged Members
