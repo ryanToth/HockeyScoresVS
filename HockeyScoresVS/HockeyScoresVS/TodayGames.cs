@@ -36,10 +36,19 @@ namespace HockeyScoresVS
             var todayStringCode = GetTodayStringCode();
             var todaysGames = gameData.Where(x => x.est.Contains(todayStringCode));
 
+            List<HockeyGame> tempList = new List<HockeyGame>();
+
             foreach(var game in todaysGames)
             {
-                Add(new HockeyGame(ConvertRawDateToReadableString(game.est, todayStringCode), 
+                tempList.Add(new HockeyGame(ConvertRawDateToReadableString(game.est, todayStringCode), 
                     new Team(game.h), new Team(game.a), game.id));
+            }
+
+            tempList.Sort();
+
+            foreach(var game in tempList)
+            {
+                Add(game);
             }
         }
 
@@ -51,7 +60,7 @@ namespace HockeyScoresVS
         /// <returns></returns>
         private string ConvertRawDateToReadableString(string rawDate, string todayStringCode)
         {
-            return DateTime.Parse(rawDate.Substring(todayStringCode.Length + 1), CultureInfo.CurrentCulture).Subtract(new TimeSpan(0, 3, 0, 0)).ToString("hh:mm tt");
+            return DateTime.Parse(rawDate.Substring(todayStringCode.Length + 1), CultureInfo.CurrentCulture).Subtract(new TimeSpan(0, 3, 0, 0)).ToString("h:mm tt");
         }
 
         private string GetTodayStringCode()

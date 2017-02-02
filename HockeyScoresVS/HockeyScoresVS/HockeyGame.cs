@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
-    public class HockeyGame : INotifyPropertyChanged
+    public class HockeyGame : INotifyPropertyChanged, IComparable<HockeyGame>
     {
         private const int DataRefreshInterval = 5000;
         private Timer _refreshDataTimer;
@@ -187,6 +187,18 @@ namespace HockeyScoresVS
             }
         }
 
+        #endregion
+
+        #region IComparable Members
+        public int CompareTo(HockeyGame other)
+        {
+            if (DateTime.Parse(other.StartTime, CultureInfo.CurrentCulture).TimeOfDay > DateTime.Parse(this.StartTime, CultureInfo.CurrentCulture).TimeOfDay)
+            {
+                return -1;
+            }
+
+            return 1;
+        }
         #endregion
     }
 }
