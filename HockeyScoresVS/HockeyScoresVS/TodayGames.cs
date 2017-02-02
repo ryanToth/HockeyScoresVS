@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -37,8 +38,20 @@ namespace HockeyScoresVS
 
             foreach(var game in todaysGames)
             {
-                Add(new HockeyGame(game.est.Substring(todayStringCode.Length + 1), new Team(game.h), new Team(game.a), game.id));
+                Add(new HockeyGame(ConvertRawDateToReadableString(game.est, todayStringCode), 
+                    new Team(game.h), new Team(game.a), game.id));
             }
+        }
+
+        /// <summary>
+        /// Converts raw time into a readable string in the format of hh:mm tt and converts Eastern to Pacific time
+        /// </summary>
+        /// <param name="rawDate">Date retrieved from the json from the API call</param>
+        /// <param name="todayStringCode">Todays date in the format the API call uses</param>
+        /// <returns></returns>
+        private string ConvertRawDateToReadableString(string rawDate, string todayStringCode)
+        {
+            return DateTime.Parse(rawDate.Substring(todayStringCode.Length + 1), CultureInfo.CurrentCulture).Subtract(new TimeSpan(0, 3, 0, 0)).ToString("hh:mm tt");
         }
 
         private string GetTodayStringCode()

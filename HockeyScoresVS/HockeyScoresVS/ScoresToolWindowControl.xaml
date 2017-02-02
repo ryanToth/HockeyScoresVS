@@ -13,8 +13,8 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid HorizontalAlignment="Center">
-        <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding Mode=OneWay}">
+    <Grid HorizontalAlignment="Center" Width="258">
+        <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding Mode=OneWay}" HorizontalAlignment="Center">
             <ListBox.DataContext>
                 <local:TodayGames/>
             </ListBox.DataContext>
