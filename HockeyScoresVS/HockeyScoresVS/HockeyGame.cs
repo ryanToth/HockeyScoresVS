@@ -107,11 +107,21 @@ namespace HockeyScoresVS
         {
             get
             {
-                string time = $"{SecondsLeftInPeriod/60}:";
-                if (SecondsLeftInPeriod%60 < 10) time += $"0{SecondsLeftInPeriod % 60}";
-                else time += (SecondsLeftInPeriod % 60).ToString();
+                if (SecondsLeftInPeriod != 0)
+                {
+                    string time = $"{SecondsLeftInPeriod / 60}:";
+                    if (SecondsLeftInPeriod % 60 < 10) time += $"0{SecondsLeftInPeriod % 60}";
+                    else time += (SecondsLeftInPeriod % 60).ToString();
 
-                return time;
+                    return time;
+                }
+
+                if (Int32.Parse(_period) <= 3)
+                {
+                    return "Intermission";
+                }
+
+                return "End";
             }
         }
 
