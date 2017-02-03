@@ -200,6 +200,7 @@ namespace HockeyScoresVS
         #endregion
 
         #region IComparable Members
+
         public int CompareTo(HockeyGame other)
         {
             if (DateTime.Parse(other.StartTime, CultureInfo.CurrentCulture).TimeOfDay > DateTime.Parse(this.StartTime, CultureInfo.CurrentCulture).TimeOfDay)
@@ -209,6 +210,7 @@ namespace HockeyScoresVS
 
             return 1;
         }
+
         #endregion
     }
 }

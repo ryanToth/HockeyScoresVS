@@ -33,24 +33,26 @@
     </Style>
 
     <DataTemplate x:Uid="GameScoreTemplate" x:Key="GameScoreTemplate">
-        <Border BorderThickness="4" BorderBrush="CornflowerBlue" MaxHeight="60" Height="60" MaxWidth="225" Width="225">
+        <Border BorderThickness="4" BorderBrush="CornflowerBlue" MaxHeight="65" Height="65" MaxWidth="225" Width="225">
             <Grid Background="AliceBlue" Grid.Column="3" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="70"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="70"/>
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="20"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock x:Name="GameStartTime" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="0" Text="{Binding StartTime}"/>
-                <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">
+                <StackPanel Orientation="Vertical" Grid.Column="0" VerticalAlignment="Center">
                     <TextBlock x:Name="HomeTeam" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding HomeTeam.Name}"/>
                     <TextBlock x:Name="HomeTeamScore" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding HomeTeamScore}" Style="{StaticResource GameHasNotStartedYetStyle}"/>
                 </StackPanel>
-                <ContentControl Name="GameTimeContentControl" Style="{StaticResource GameTimeTemplateStyle}" Content="{Binding}" Grid.Column="1" Grid.Row="1"/>
-                <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center">
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="GameStartTime" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Text="{Binding StartTime}"/>
+                    <ContentControl Name="GameTimeContentControl" Style="{StaticResource GameTimeTemplateStyle}" Content="{Binding}" Grid.Row="1"/>
+                </Grid>
+                <StackPanel Orientation="Vertical" Grid.Column="2" VerticalAlignment="Center">
                     <TextBlock x:Name="AwayTeam" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AwayTeam.Name}"/>
                     <TextBlock x:Name="AwayTeamScore" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AwayTeamScore}" Style="{StaticResource GameHasNotStartedYetStyle}"/>
                 </StackPanel>
