@@ -8,14 +8,21 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
     class TodayGames : ObservableCollection<HockeyGame>
     {
+        private DateTime _currentGamesDate;
+        private Timer _timer;
+        // Once every hour
+        private int pollingInterval = 3600000;
+
         public TodayGames()
         {
+            this._timer = new Timer(CheckForTomorrow, new AutoResetEvent(true), pollingInterval, pollingInterval);
             this.Initialize();
         }
 
@@ -33,6 +40,7 @@ namespace HockeyScoresVS
 
             var gameData = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
 
+            _currentGamesDate = DateTime.Now.Date;
             var todayStringCode = GetTodayStringCode();
             var todaysGames = gameData.Where(x => x.est.Contains(todayStringCode));
 
@@ -76,6 +84,16 @@ namespace HockeyScoresVS
             else dateCode += day.ToString();
 
             return dateCode;
+        }
+
+        private void CheckForTomorrow(object state)
+        {
+            // Re-initialize the game data if it's tomorrow
+            if (_currentGamesDate < DateTime.Now.Date)
+            {
+                this.Clear();
+                this.Initialize();
+            }
         }
     }
 }
