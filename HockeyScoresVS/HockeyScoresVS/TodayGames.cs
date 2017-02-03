@@ -39,9 +39,9 @@ namespace HockeyScoresVS
             List<HockeyGame> tempList = new List<HockeyGame>();
 
             foreach(var game in todaysGames)
-            {
+            { 
                 tempList.Add(new HockeyGame(ConvertRawDateToReadableString(game.est, todayStringCode), 
-                    new Team(game.h), new Team(game.a), game.id));
+                    new Team(game.h), new Team(game.a), game.id, todayStringCode));
             }
 
             tempList.Sort();

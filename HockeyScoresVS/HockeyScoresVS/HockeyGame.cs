@@ -12,11 +12,12 @@ using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
-    public class HockeyGame : INotifyPropertyChanged, IComparable<HockeyGame>
+    public class HockeyGame : INotifyPropertyChanged, IComparable<HockeyGame>, IDisposable
     {
         private const int DataRefreshInterval = 5000;
         private Timer _refreshDataTimer;
         private string _id;
+        private string _dateCode;
 
         public string StartTime { get; }
 
@@ -129,7 +130,8 @@ namespace HockeyScoresVS
         {
             get
             {
-                return DateTime.Now.TimeOfDay > DateTime.Parse(this.StartTime, CultureInfo.CurrentCulture).TimeOfDay;
+                return DateTime.Now.TimeOfDay > DateTime.Parse(this.StartTime, CultureInfo.CurrentCulture).TimeOfDay ||
+                    DateTime.Now.Date < DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
             }
         }
 
@@ -137,19 +139,32 @@ namespace HockeyScoresVS
         {
             get
             {
-                return AwayTeamScore != HomeTeamScore && _secondsLeftInPeriod == 0 && Int32.Parse(_period) >= 3;
+                return DateTime.Now.Date > DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date ||
+                    AwayTeamScore != HomeTeamScore && _secondsLeftInPeriod == 0 && Int32.Parse(_period) >= 3;
             }
         }
 
-        public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id)
+        public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id, string dateCode)
         {
             this.StartTime = startTime;
             this.HomeTeam = homeTeam;
             this.AwayTeam = awayTeam;
             this._id = id;
-            this.SecondsLeftInPeriod = 1200;
-            this._period = "1";
-            _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), 0, DataRefreshInterval);
+            this._dateCode = dateCode;
+
+            if (IsGameOver)
+            {
+                this.SecondsLeftInPeriod = 0;
+                this._period = "3";
+            }
+            else
+            {
+                this.SecondsLeftInPeriod = 1200;
+                this._period = "1";
+            }
+
+            Task.Run(async () => await GetGameData());
+            _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), DataRefreshInterval, DataRefreshInterval);
         }
 
         private async void RefreshGameData(object state)
@@ -157,32 +172,37 @@ namespace HockeyScoresVS
             if (HasGameStartedYet && !IsGameOver)
             {
                 OnNotifyPropertyChanged("HasGameStartedYet");
-
-                WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/20162017/{_id}/gc/gcsb.jsonp");
-                WebResponse response = await request.GetResponseAsync();
-
-                Stream dataStream = response.GetResponseStream();
-                StreamReader reader = new StreamReader(dataStream);
-
-                string jsonFile = await reader.ReadToEndAsync();
-                reader.Close();
-                response.Close();
-
-                try
-                {
-                    JObject gameData = JObject.Parse(jsonFile.Substring(10, jsonFile.Length - 11));
-                    this.Period = gameData["p"].Value<string>();
-                    this.SecondsLeftInPeriod = gameData["sr"].Value<int>();
-                    this.HomeTeamScore = gameData["h"]["tot"]["g"].Value<int>();
-                    this.AwayTeamScore = gameData["a"]["tot"]["g"].Value<int>();
-                }
-                catch (Exception) { }
+                await GetGameData();
             }
             else if (IsGameOver)
             {
                 OnNotifyPropertyChanged("IsGameOver");
-                _refreshDataTimer.Dispose();
+                // Stop refreshing the game data if the game is over
+                _refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
+        }
+
+        private async Task GetGameData()
+        {
+            WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/20162017/{_id}/gc/gcsb.jsonp");
+            WebResponse response = await request.GetResponseAsync();
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+
+            string jsonFile = await reader.ReadToEndAsync();
+            reader.Close();
+            response.Close();
+
+            try
+            {
+                JObject gameData = JObject.Parse(jsonFile.Substring(10, jsonFile.Length - 11));
+                this.Period = gameData["p"].Value<string>();
+                this.SecondsLeftInPeriod = gameData["sr"].Value<int>();
+                this.HomeTeamScore = gameData["h"]["tot"]["g"].Value<int>();
+                this.AwayTeamScore = gameData["a"]["tot"]["g"].Value<int>();
+            }
+            catch (Exception) { }
         }
 
         #region INotifyPropertyChanged Members
@@ -209,6 +229,16 @@ namespace HockeyScoresVS
             }
 
             return 1;
+        }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            _refreshDataTimer.Dispose();
         }
 
         #endregion
