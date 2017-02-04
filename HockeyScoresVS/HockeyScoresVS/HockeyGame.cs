@@ -18,6 +18,7 @@ namespace HockeyScoresVS
         private Timer _refreshDataTimer;
         private string _id;
         private string _dateCode;
+        private string _seasonCode;
 
         public string StartTime { get; }
 
@@ -130,8 +131,9 @@ namespace HockeyScoresVS
         {
             get
             {
-                return DateTime.Now.TimeOfDay > DateTime.Parse(this.StartTime, CultureInfo.CurrentCulture).TimeOfDay ||
-                    DateTime.Now.Date < DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
+                return DateTime.Now.Date == DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date &&
+                    DateTime.Now.TimeOfDay > DateTime.Parse(this.StartTime, CultureInfo.CurrentCulture).TimeOfDay ||
+                    DateTime.Now.Date > DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
             }
         }
 
@@ -139,18 +141,19 @@ namespace HockeyScoresVS
         {
             get
             {
-                return DateTime.Now.Date > DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date ||
-                    AwayTeamScore != HomeTeamScore && _secondsLeftInPeriod == 0 && Int32.Parse(_period) >= 3;
+                return AwayTeamScore != HomeTeamScore && _secondsLeftInPeriod == 0 && Int32.Parse(_period) >= 3 ||
+                    DateTime.Now.Date > DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
             }
         }
 
-        public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id, string dateCode)
+        public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id, string dateCode, string seasonCode)
         {
             this.StartTime = startTime;
             this.HomeTeam = homeTeam;
             this.AwayTeam = awayTeam;
             this._id = id;
             this._dateCode = dateCode;
+            this._seasonCode = seasonCode;
 
             if (IsGameOver)
             {
@@ -163,7 +166,11 @@ namespace HockeyScoresVS
                 this._period = "1";
             }
 
-            Task.Run(async () => await GetGameData());
+            if (HasGameStartedYet)
+            {
+                Task.Run(async () => await GetGameData());
+            }
+
             _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), DataRefreshInterval, DataRefreshInterval);
         }
 
@@ -184,7 +191,7 @@ namespace HockeyScoresVS
 
         private async Task GetGameData()
         {
-            WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/20162017/{_id}/gc/gcsb.jsonp");
+            WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/{_seasonCode}/{_id}/gc/gcsb.jsonp");
             WebResponse response = await request.GetResponseAsync();
 
             Stream dataStream = response.GetResponseStream();
