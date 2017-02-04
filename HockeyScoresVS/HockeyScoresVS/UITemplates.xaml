@@ -1,0 +1,62 @@
+﻿<ResourceDictionary x:Uid="ResourceDictionary_1" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Uid="GameHasNotStartedYetStyle" x:Key="GameHasNotStartedYetStyle" TargetType="{x:Type FrameworkElement}">
+        <Setter Property="Visibility" Value="Visible"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding HasGameStartedYet}" Value="False">
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <DataTemplate x:Uid="GameOverTimeTemplate" x:Key="GameOverTimeTemplate">
+        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource GameHasNotStartedYetStyle}">
+            <TextBlock x:Name="Period" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Final"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Uid="GameTimeTemplate" x:Key="GameTimeTemplate">
+        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource GameHasNotStartedYetStyle}">
+            <TextBlock x:Name="Period" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Period}"/>
+            <TextBlock x:Name="TimeRemaining" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding TimeLeftInPeriod}"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <Style x:Uid="GameTimeTemplateStyle" x:Key="GameTimeTemplateStyle" TargetType="{x:Type ContentControl}">
+        <Setter Property="ContentTemplate" Value="{StaticResource GameTimeTemplate}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsGameOver}" Value="True">
+                <Setter Property="ContentTemplate" Value="{StaticResource GameOverTimeTemplate}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <DataTemplate x:Uid="GameScoreTemplate" x:Key="GameScoreTemplate">
+        <Border BorderThickness="4" BorderBrush="CornflowerBlue" MaxHeight="65" Height="65" MaxWidth="225" Width="225">
+            <Grid Background="AliceBlue" Grid.Column="3" Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="70"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Vertical" Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock x:Name="HomeTeam" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding HomeTeam.Name}"/>
+                    <TextBlock x:Name="HomeTeamScore" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding HomeTeamScore}" Style="{StaticResource GameHasNotStartedYetStyle}"/>
+                </StackPanel>
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="GameStartTime" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Text="{Binding StartTime}"/>
+                    <ContentControl Name="GameTimeContentControl" Style="{StaticResource GameTimeTemplateStyle}" Content="{Binding}" Grid.Row="1"/>
+                </Grid>
+                <StackPanel Orientation="Vertical" Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock x:Name="AwayTeam" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AwayTeam.Name}"/>
+                    <TextBlock x:Name="AwayTeamScore" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AwayTeamScore}" Style="{StaticResource GameHasNotStartedYetStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+</ResourceDictionary>

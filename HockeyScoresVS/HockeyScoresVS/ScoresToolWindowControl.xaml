@@ -1,0 +1,23 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:HockeyScoresVS" x:Class="HockeyScoresVS.ScoresToolWindowControl"
+             mc:Ignorable="d"
+             x:Name="NHLScores">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="UITemplates.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel HorizontalAlignment="Center" Width="258">
+            <DatePicker x:Name="DatePicker" SelectedDate="{x:Static sys:DateTime.Today}" SelectedDateChanged="DatePicker_SelectedDateChanged" HorizontalAlignment="Center" Width="239" MaxWidth="239"/>
+            <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding Mode=OneWay}" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
