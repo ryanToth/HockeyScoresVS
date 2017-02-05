@@ -127,6 +127,7 @@ namespace HockeyScoresVS
             }
         }
 
+        private bool _hasGameStarted = false;
         public bool HasGameStartedYet
         {
             get
@@ -178,10 +179,15 @@ namespace HockeyScoresVS
         {
             if (HasGameStartedYet && !IsGameOver)
             {
-                OnNotifyPropertyChanged("HasGameStartedYet");
+                if (!_hasGameStarted)
+                {
+                    _hasGameStarted = true;
+                    OnNotifyPropertyChanged("HasGameStartedYet");
+                }
+                
                 await GetGameData();
             }
-            else if (IsGameOver)
+            if (IsGameOver)
             {
                 OnNotifyPropertyChanged("IsGameOver");
                 // Stop refreshing the game data if the game is over
