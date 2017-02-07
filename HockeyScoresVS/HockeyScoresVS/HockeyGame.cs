@@ -14,7 +14,10 @@ namespace HockeyScoresVS
 {
     public class HockeyGame : INotifyPropertyChanged, IComparable<HockeyGame>, IDisposable
     {
+        // Every 5 seconds
         private const int DataRefreshInterval = 5000;
+        // Every 10 minutes
+        private const int HasGameStartedCheckInterval = 600000;
         private Timer _refreshDataTimer;
         private string _id;
         private string _dateCode;
@@ -167,12 +170,19 @@ namespace HockeyScoresVS
                 this._period = "1";
             }
 
+            int initialInterval;
+
             if (HasGameStartedYet)
             {
+                initialInterval = DataRefreshInterval;
                 Task.Run(async () => await GetGameData());
             }
+            else
+            {
+                initialInterval = HasGameStartedCheckInterval;
+            }
 
-            _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), DataRefreshInterval, DataRefreshInterval);
+            _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), initialInterval, initialInterval);
         }
 
         private async void RefreshGameData(object state)
@@ -183,6 +193,7 @@ namespace HockeyScoresVS
                 {
                     _hasGameStarted = true;
                     OnNotifyPropertyChanged("HasGameStartedYet");
+                    _refreshDataTimer.Change(DataRefreshInterval, DataRefreshInterval);
                 }
                 
                 await GetGameData();

@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
-    public class TodayGames : ObservableCollection<HockeyGame>, IDisposable
+    public class TodayGames : ObservableCollection<HockeyGame>, INotifyPropertyChanged, IDisposable
     {
         private DateTime _currentGamesDate = DateTime.Now.Date;
         private string cachedSeasonScheduleYears = "";
@@ -76,6 +77,8 @@ namespace HockeyScoresVS
             {
                 Add(game);
             }
+
+            OnNotifyPropertyChanged("AnyGamesToday");
         }
 
         /// <summary>
@@ -150,6 +153,28 @@ namespace HockeyScoresVS
                 this.Initialize();
             }
         }
+
+        public bool AnyGamesToday
+        {
+            get
+            {
+                return this.Any();
+            }
+        }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnNotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
 
         public void Dispose()
         {

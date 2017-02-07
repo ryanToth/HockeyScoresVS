@@ -59,4 +59,22 @@
             </Grid>
         </Border>
     </DataTemplate>
+
+    <DataTemplate x:Name="NoGamesTodayTemplate" x:Key="NoGamesTodayTemplate">
+        <TextBlock x:Name="NoGamesMessage" HorizontalAlignment="Center" VerticalAlignment="Center">There are no games being played today</TextBlock>
+    </DataTemplate>
+
+    <DataTemplate x:Name="GamesTodayTemplate" x:Key="GamesTodayTemplate">
+        <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding Mode=OneWay}" HorizontalAlignment="Center"/>
+    </DataTemplate>
+    
+    <Style x:Uid="AnyGamesTodayStyle" x:Key="AnyGamesTodayStyle" TargetType="{x:Type ContentControl}">
+        <Setter Property="ContentTemplate" Value="{StaticResource GamesTodayTemplate}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding AnyGamesToday}" Value="False">
+                <Setter Property="ContentTemplate" Value="{StaticResource NoGamesTodayTemplate}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    
 </ResourceDictionary>
