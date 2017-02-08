@@ -208,25 +208,25 @@ namespace HockeyScoresVS
 
         private async Task GetGameData()
         {
-            WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/{_seasonCode}/{_id}/gc/gcsb.jsonp");
-            WebResponse response = await request.GetResponseAsync();
-
-            Stream dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-
-            string jsonFile = await reader.ReadToEndAsync();
-            reader.Close();
-            response.Close();
-
             try
             {
+                WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/{_seasonCode}/{_id}/gc/gcsb.jsonp");
+                WebResponse response = await request.GetResponseAsync();
+
+                Stream dataStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+
+                string jsonFile = await reader.ReadToEndAsync();
+                reader.Close();
+                response.Close();
+            
                 JObject gameData = JObject.Parse(jsonFile.Substring(10, jsonFile.Length - 11));
                 this.Period = gameData["p"].Value<string>();
                 this.SecondsLeftInPeriod = gameData["sr"].Value<int>();
                 this.HomeTeamScore = gameData["h"]["tot"]["g"].Value<int>();
                 this.AwayTeamScore = gameData["a"]["tot"]["g"].Value<int>();
             }
-            catch (Exception) { }
+            catch (Exception) { /* Don't crash VS if any of the above lines throw, just try to poll again next period */ }
         }
 
         #region INotifyPropertyChanged Members
