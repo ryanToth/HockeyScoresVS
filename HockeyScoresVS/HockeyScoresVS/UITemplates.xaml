@@ -65,7 +65,13 @@
     </DataTemplate>
 
     <DataTemplate x:Name="GamesTodayTemplate" x:Key="GamesTodayTemplate">
-        <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding Mode=OneWay}" HorizontalAlignment="Center"/>
+        <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding Mode=OneWay}" HorizontalAlignment="Center">
+            <ListBox.Template>
+                <ControlTemplate>
+                    <ItemsPresenter/>
+                </ControlTemplate>
+            </ListBox.Template>
+        </ListBox>
     </DataTemplate>
     
     <Style x:Uid="AnyGamesTodayStyle" x:Key="AnyGamesTodayStyle" TargetType="{x:Type ContentControl}">
