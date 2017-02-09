@@ -33,7 +33,7 @@
     </Style>
 
     <DataTemplate x:Uid="GameScoreTemplate" x:Key="GameScoreTemplate">
-        <Border BorderThickness="4" BorderBrush="CornflowerBlue" MaxHeight="65" Height="65" MaxWidth="225" Width="225">
+        <Border BorderThickness="4" BorderBrush="{Binding BorderColor}" MaxHeight="65" Height="65" MaxWidth="225" Width="225">
             <Grid Background="AliceBlue" Grid.Column="3" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="70"/>

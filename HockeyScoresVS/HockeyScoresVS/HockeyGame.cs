@@ -18,6 +18,8 @@ namespace HockeyScoresVS
         private const int DataRefreshInterval = 5000;
         // Every 10 minutes
         private const int HasGameStartedCheckInterval = 600000;
+        private const string DefaultBorderColor = "CornflowerBlue";
+        private const string GoalBorderColor = "IndianRed";
         private Timer _refreshDataTimer;
         private string _id;
         private string _dateCode;
@@ -84,6 +86,14 @@ namespace HockeyScoresVS
             {
                 if (_homeGoals != value)
                 {
+                    if (!_suppressGoalHorn && value > _homeGoals)
+                    {
+                        Task.Run(async () =>
+                        {
+                            await GoalHorn();
+                        });
+                    }
+
                     _homeGoals = value;
                     OnNotifyPropertyChanged("HomeTeamScore");
                 }
@@ -102,6 +112,14 @@ namespace HockeyScoresVS
             {
                 if (_awayGoals != value)
                 {
+                    if (!_suppressGoalHorn && value > _awayGoals)
+                    {
+                        Task.Run(async () =>
+                        {
+                            await GoalHorn();
+                        });
+                    }
+
                     _awayGoals = value;
                     OnNotifyPropertyChanged("AwayTeamScore");
                 }
@@ -147,6 +165,22 @@ namespace HockeyScoresVS
             {
                 return AwayTeamScore != HomeTeamScore && _secondsLeftInPeriod == 0 && Int32.Parse(_period) >= 3 ||
                     DateTime.Now.Date > DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
+            }
+        }
+
+        private bool _suppressGoalHorn = true;
+
+        private string _borderColor = DefaultBorderColor;
+        public string BorderColor
+        {
+            get
+            {
+                return _borderColor;
+            }
+            set
+            {
+                _borderColor = value;
+                OnNotifyPropertyChanged("BorderColor");
             }
         }
 
@@ -225,8 +259,22 @@ namespace HockeyScoresVS
                 this.SecondsLeftInPeriod = gameData["sr"].Value<int>();
                 this.HomeTeamScore = gameData["h"]["tot"]["g"].Value<int>();
                 this.AwayTeamScore = gameData["a"]["tot"]["g"].Value<int>();
+                // After the first time the scores are set the goal horn is enabled
+                _suppressGoalHorn = false;
             }
             catch (Exception) { /* Don't crash VS if any of the above lines throw, just try to poll again next period */ }
+        }
+
+        private async Task GoalHorn()
+        {
+            await Task.Yield();
+            for (int i = 0; i < 10; i++)
+            {
+                BorderColor = GoalBorderColor;
+                Thread.Sleep(200);
+                BorderColor = DefaultBorderColor;
+                Thread.Sleep(200);
+            }
         }
 
         #region INotifyPropertyChanged Members
