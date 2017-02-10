@@ -61,7 +61,9 @@
     </DataTemplate>
 
     <DataTemplate x:Name="NoGamesTodayTemplate" x:Key="NoGamesTodayTemplate">
-        <TextBlock x:Name="NoGamesMessage" HorizontalAlignment="Center" VerticalAlignment="Center">There are no games being played today</TextBlock>
+        <TextBlock x:Name="NoGamesMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{x:Static SystemColors.ControlDarkDarkBrush}" Padding="0,10,0,0">
+            There are no games being played today
+        </TextBlock>
     </DataTemplate>
 
     <DataTemplate x:Name="GamesTodayTemplate" x:Key="GamesTodayTemplate">
