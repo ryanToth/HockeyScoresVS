@@ -33,31 +33,59 @@
     </Style>
 
     <DataTemplate x:Uid="GameScoreTemplate" x:Key="GameScoreTemplate">
-        <Border BorderThickness="4" BorderBrush="{Binding BorderColor}" MaxHeight="65" Height="65" MaxWidth="225" Width="225">
-            <Grid Background="AliceBlue" Grid.Column="3" Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="70"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="70"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Vertical" Grid.Column="0" VerticalAlignment="Center">
-                    <TextBlock x:Name="HomeTeam" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding HomeTeam.Name}"/>
-                    <TextBlock x:Name="HomeTeamScore" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding HomeTeamScore}" Style="{StaticResource GameHasNotStartedYetStyle}"/>
-                </StackPanel>
-                <Grid Grid.Column="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="20"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock x:Name="GameStartTime" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Text="{Binding StartTime}"/>
-                    <ContentControl Name="GameTimeContentControl" Style="{StaticResource GameTimeTemplateStyle}" Content="{Binding}" Grid.Row="1"/>
+        <StackPanel>
+            <Border BorderThickness="4" BorderBrush="{Binding BorderColor}" MaxHeight="65" Height="65" MaxWidth="225" Width="225">
+                <Grid Background="AliceBlue" Grid.Column="3" Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Vertical" Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock x:Name="HomeTeam" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding HomeTeam.Name}"/>
+                        <TextBlock x:Name="HomeTeamScore" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding HomeTeamScore}" Style="{StaticResource GameHasNotStartedYetStyle}"/>
+                    </StackPanel>
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock x:Name="GameStartTime" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Text="{Binding StartTime}"/>
+                        <ContentControl Name="GameTimeContentControl" Style="{StaticResource GameTimeTemplateStyle}" Content="{Binding}" Grid.Row="1"/>
+                    </Grid>
+                    <StackPanel Orientation="Vertical" Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="AwayTeam" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AwayTeam.Name}"/>
+                        <TextBlock x:Name="AwayTeamScore" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AwayTeamScore}" Style="{StaticResource GameHasNotStartedYetStyle}"/>
+                    </StackPanel>
                 </Grid>
-                <StackPanel Orientation="Vertical" Grid.Column="2" VerticalAlignment="Center">
-                    <TextBlock x:Name="AwayTeam" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AwayTeam.Name}"/>
-                    <TextBlock x:Name="AwayTeamScore" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding AwayTeamScore}" Style="{StaticResource GameHasNotStartedYetStyle}"/>
+            </Border>
+            <Border Background="CornflowerBlue" BorderThickness="4">
+                <StackPanel x:Name="GoalsScored" Background="AliceBlue">
+                    <TextBlock x:Name="FirstPeriodGoalsSeparator">1st Period</TextBlock>
+                    <StackPanel x:Name="FirstPeriodGoals">
+                        <StackPanel x:Name="Goal">
+                            <TextBlock x:Name="GoalScored" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="8" FontWeight="Bold" VerticalAlignment="Bottom">WSH T.J. Oshie</TextBlock>
+                            <TextBlock x:Name="GoalAssisted" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="8" VerticalAlignment="Bottom" TextAlignment="Left">Assisted by Ovechkin, Carlson</TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock x:Name="SecondPeriodGoalsSeparator">2nd Period</TextBlock>
+                    <StackPanel x:Name="SecondPeriodGoals">
+                        <StackPanel x:Name="Goa2l">
+                            <TextBlock x:Name="GoalScored2" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="8" FontWeight="Bold" VerticalAlignment="Bottom">WSH T.J. Oshie</TextBlock>
+                            <TextBlock x:Name="GoalAssisted2" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="8" VerticalAlignment="Bottom" TextAlignment="Left">Assisted by Ovechkin, Carlson</TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock x:Name="ThirdPeriodGoalsSeparator">3rd Period</TextBlock>
+                    <StackPanel x:Name="ThirdPeriodGoals">
+
+                    </StackPanel>
+                    <TextBlock x:Name="OTPeriodGoalsSeparator">Over Time</TextBlock>
+                    <StackPanel x:Name="OTPeriodGoals">
+
+                    </StackPanel>
                 </StackPanel>
-            </Grid>
-        </Border>
+            </Border>
+        </StackPanel>
     </DataTemplate>
 
     <DataTemplate x:Name="NoGamesTodayTemplate" x:Key="NoGamesTodayTemplate">
