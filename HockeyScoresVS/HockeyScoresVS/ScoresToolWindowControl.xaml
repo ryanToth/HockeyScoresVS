@@ -17,7 +17,7 @@
     <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Disabled">
         <StackPanel HorizontalAlignment="Center" Width="258">
             <DatePicker x:Name="DatePicker" SelectedDate="{x:Static sys:DateTime.Today}" SelectedDateChanged="DatePicker_SelectedDateChanged" HorizontalAlignment="Center" Width="235" MaxWidth="239"/>
-            <ContentControl Name="GameListControl" Style="{StaticResource AnyGamesTodayStyle}" Content="{Binding}"/>
+            <ContentControl Name="GameListControl" Style="{StaticResource AnyGamesTodayStyle}" Content="{Binding}" Selector.SelectionChanged="ListBox_SelectionChanged"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

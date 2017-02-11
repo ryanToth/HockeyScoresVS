@@ -32,6 +32,60 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Uid="ShowGoalsScoredStyle" x:Key="ShowGoalsScoredStyle" TargetType="{x:Type Border}">
+        <Setter Property="Visibility" Value="Collapsed"/>
+        <Style.Triggers>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding IsSelected}" Value="True"/>
+                    <Condition Binding="{Binding GameGoals.AnyGoalsScored}" Value="True"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Visibility" Value="Visible"/>
+            </MultiDataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <DataTemplate x:Uid="GoalTemplate" x:Key="GoalTemplate">
+        <Border Padding="2,2,2,2" BorderThickness="1">
+            <StackPanel>
+                <TextBlock x:Name="GoalScored" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="11" FontWeight="Bold" VerticalAlignment="Bottom" Text="{Binding GoalScoredText}"/>
+                <TextBlock x:Name="GoalAssisted" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Bottom" TextAlignment="Left" Text="{Binding AssistedByText}"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <Style x:Uid="ShowGoalsStyle" x:Key="ShowGoalsStyle" TargetType="{x:Type StackPanel}">
+        <Setter Property="Visibility" Value="Visible"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Count}" Value="0">
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <DataTemplate x:Uid="GoalsScoredTemplate" x:Key="GoalsScoredTemplate">
+        <Border BorderBrush="CornflowerBlue" BorderThickness="4" Style="{StaticResource ShowGoalsScoredStyle}">
+            <StackPanel x:Name="GoalsScored" Background="AliceBlue" DataContext="{Binding GameGoals}">
+                <StackPanel x:Name="FirstPeriodGoals" Style="{StaticResource ShowGoalsStyle}" DataContext="{Binding Path=FirstPeriodGoals}">
+                    <TextBlock x:Name="FirstPeriodGoalsSeparator" Padding="5,5,5,0">1st Period</TextBlock>
+                    <ItemsControl x:Uid="FirstPeriodGoalsList" x:Name="FirstPeriodGoalsList" ItemTemplate="{StaticResource GoalTemplate}" Background="Transparent" ItemsSource="{Binding}"/>
+                </StackPanel>
+                <StackPanel x:Name="SecondPeriodGoals" Style="{StaticResource ShowGoalsStyle}" DataContext="{Binding Path=SecondPeriodGoals}">
+                    <TextBlock x:Name="SecondPeriodGoalsSeparator" Padding="5,5,5,0">2nd Period</TextBlock>
+                    <ItemsControl x:Uid="SecondPeriodGoalsList" x:Name="SecondPeriodGoalsList" ItemTemplate="{StaticResource GoalTemplate}" Background="Transparent" ItemsSource="{Binding}"/>
+                </StackPanel>
+                <StackPanel x:Name="ThirdPeriodGoals" Style="{StaticResource ShowGoalsStyle}" DataContext="{Binding Path=ThirdPeriodGoals}">
+                    <TextBlock x:Name="ThirdPeriodGoalsSeparator" Padding="5,5,5,0">3rd Period</TextBlock>
+                    <ItemsControl x:Uid="ThirdPeriodGoalsList" x:Name="ThirdPeriodGoalsList" ItemTemplate="{StaticResource GoalTemplate}" Background="Transparent" ItemsSource="{Binding}"/>
+                </StackPanel>
+                <StackPanel x:Name="OTGoals" Style="{StaticResource ShowGoalsStyle}" DataContext="{Binding Path=OTGoals}">
+                    <TextBlock x:Name="OTPeriodGoalsSeparator" Padding="5,5,5,0">Over Time</TextBlock>
+                    <ItemsControl x:Uid="OTGoalsList" x:Name="OTGoalsList" ItemTemplate="{StaticResource GoalTemplate}" Background="Transparent" ItemsSource="{Binding}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+    
     <DataTemplate x:Uid="GameScoreTemplate" x:Key="GameScoreTemplate">
         <StackPanel>
             <Border BorderThickness="4" BorderBrush="{Binding BorderColor}" MaxHeight="65" Height="65" MaxWidth="225" Width="225">
@@ -59,32 +113,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <Border Background="CornflowerBlue" BorderThickness="4">
-                <StackPanel x:Name="GoalsScored" Background="AliceBlue">
-                    <TextBlock x:Name="FirstPeriodGoalsSeparator">1st Period</TextBlock>
-                    <StackPanel x:Name="FirstPeriodGoals">
-                        <StackPanel x:Name="Goal">
-                            <TextBlock x:Name="GoalScored" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="8" FontWeight="Bold" VerticalAlignment="Bottom">WSH T.J. Oshie</TextBlock>
-                            <TextBlock x:Name="GoalAssisted" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="8" VerticalAlignment="Bottom" TextAlignment="Left">Assisted by Ovechkin, Carlson</TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                    <TextBlock x:Name="SecondPeriodGoalsSeparator">2nd Period</TextBlock>
-                    <StackPanel x:Name="SecondPeriodGoals">
-                        <StackPanel x:Name="Goa2l">
-                            <TextBlock x:Name="GoalScored2" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="8" FontWeight="Bold" VerticalAlignment="Bottom">WSH T.J. Oshie</TextBlock>
-                            <TextBlock x:Name="GoalAssisted2" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="8" VerticalAlignment="Bottom" TextAlignment="Left">Assisted by Ovechkin, Carlson</TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                    <TextBlock x:Name="ThirdPeriodGoalsSeparator">3rd Period</TextBlock>
-                    <StackPanel x:Name="ThirdPeriodGoals">
-
-                    </StackPanel>
-                    <TextBlock x:Name="OTPeriodGoalsSeparator">Over Time</TextBlock>
-                    <StackPanel x:Name="OTPeriodGoals">
-
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+            <ContentControl Name="GoalsScoredContentControl" ContentTemplate="{StaticResource GoalsScoredTemplate}"  Content="{Binding}"/>
         </StackPanel>
     </DataTemplate>
 
@@ -95,7 +124,7 @@
     </DataTemplate>
 
     <DataTemplate x:Name="GamesTodayTemplate" x:Key="GamesTodayTemplate">
-        <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding Mode=OneWay}" HorizontalAlignment="Center">
+        <ListBox x:Uid="GamesList" x:Name="GamesList" ItemTemplate="{StaticResource GameScoreTemplate}" Background="Transparent" ItemsSource="{Binding}" HorizontalAlignment="Center" SelectionMode="Multiple">
             <ListBox.Template>
                 <ControlTemplate>
                     <ItemsPresenter/>

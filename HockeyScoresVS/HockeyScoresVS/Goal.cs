@@ -51,6 +51,22 @@ namespace HockeyScoresVS
             }
         }
 
+        public string GoalScoredText
+        {
+            get
+            {
+                return "Goal Scored";
+            }
+        }
+
+        public string AssistedByText
+        {
+            get
+            {
+                return "Assisted by people and stuff";
+            }
+        }
+
         public Goal()
         {
         }

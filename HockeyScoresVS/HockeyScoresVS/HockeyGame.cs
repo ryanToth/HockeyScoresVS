@@ -184,8 +184,25 @@ namespace HockeyScoresVS
             }
         }
 
+        private bool _isSelected = false;
+        public bool IsSelected
+        {
+            get
+            {
+                return _isSelected;
+            }
+            set
+            {
+                _isSelected = value;
+                OnNotifyPropertyChanged("IsSelected");
+            }
+        }
+
+        public GameGoals GameGoals { get; }
+
         public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id, string dateCode, string seasonCode)
         {
+            this.GameGoals = new GameGoals();
             this.StartTime = startTime;
             this.HomeTeam = homeTeam;
             this.AwayTeam = awayTeam;
@@ -314,5 +331,6 @@ namespace HockeyScoresVS
         }
 
         #endregion
+
     }
 }

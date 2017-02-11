@@ -51,6 +51,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GameGoals.cs" />
     <Compile Include="Goal.cs" />
     <Compile Include="HockeyGame.cs" />
     <Compile Include="Player.cs" />
