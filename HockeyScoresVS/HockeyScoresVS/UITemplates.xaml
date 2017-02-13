@@ -117,6 +117,12 @@
         </StackPanel>
     </DataTemplate>
 
+    <DataTemplate x:Name="LoadingGamesTemplate" x:Key="LoadingGamesTemplate">
+        <TextBlock x:Name="LoadingMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{x:Static SystemColors.ControlDarkDarkBrush}" Padding="0,10,0,0">
+            Loading games . . .
+        </TextBlock>
+    </DataTemplate>
+    
     <DataTemplate x:Name="NoGamesTodayTemplate" x:Key="NoGamesTodayTemplate">
         <TextBlock x:Name="NoGamesMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{x:Static SystemColors.ControlDarkDarkBrush}" Padding="0,10,0,0">
             There are no games being played today
@@ -136,8 +142,15 @@
     <Style x:Uid="AnyGamesTodayStyle" x:Key="AnyGamesTodayStyle" TargetType="{x:Type ContentControl}">
         <Setter Property="ContentTemplate" Value="{StaticResource GamesTodayTemplate}"/>
         <Style.Triggers>
-            <DataTrigger Binding="{Binding AnyGamesToday}" Value="False">
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding AnyGamesToday}" Value="False"/>
+                    <Condition Binding="{Binding IsLoading}" Value="False"/>
+                </MultiDataTrigger.Conditions>
                 <Setter Property="ContentTemplate" Value="{StaticResource NoGamesTodayTemplate}"/>
+            </MultiDataTrigger>
+            <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                <Setter Property="ContentTemplate" Value="{StaticResource LoadingGamesTemplate}"/>
             </DataTrigger>
         </Style.Triggers>
     </Style>

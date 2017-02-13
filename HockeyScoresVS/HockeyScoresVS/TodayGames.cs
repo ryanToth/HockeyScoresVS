@@ -19,23 +19,22 @@ namespace HockeyScoresVS
         private DateTime _currentGamesDate = DateTime.Now.Date;
         private string cachedSeasonScheduleYears = "";
 
-        private List<RawGameInfo> _rawGameInfo;
-        private List<RawGameInfo> RawGameInfo
+        private bool _isLoading;
+        public bool IsLoading
         {
             get
             {
-                string currentSeasonScheduleYears = GetSeasonScheduleYear();
-                if (_rawGameInfo == null || currentSeasonScheduleYears != cachedSeasonScheduleYears)
-                {
-                    cachedSeasonScheduleYears = currentSeasonScheduleYears;
-                    string jsonFile = NetworkCalls.GetJsonFromApi($"http://live.nhl.com/GameData/SeasonSchedule-{cachedSeasonScheduleYears}.json");
-
-                    _rawGameInfo = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
-                }
-
-                return _rawGameInfo;
+                return _isLoading;
+            }
+            set
+            {
+                _isLoading = value;
+                OnNotifyPropertyChanged("IsLoading");
             }
         }
+
+        private List<RawGameInfo> _rawGameInfo;
+
         //private Timer _timer;
         // Once every hour
         //private int pollingInterval = 3600000;
@@ -45,15 +44,16 @@ namespace HockeyScoresVS
         {
             lock(_lock)
             {
+                this.IsLoading = true;
                 //this._timer = new Timer(CheckForTomorrow, new AutoResetEvent(true), 0, pollingInterval);
-                this.Initialize();
+                this.Initialize().ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
-        private void Initialize()
+        private async Task Initialize()
         {
-            var todayStringCode = GetTodayStringCode();
-            var todaysGames = RawGameInfo.Where(x => x.est.Contains(todayStringCode));
+            string todayStringCode = GetTodayStringCode();
+            var todaysGames = await GetGameSchedule(todayStringCode);
 
             List<HockeyGame> tempList = new List<HockeyGame>();
 
@@ -70,7 +70,23 @@ namespace HockeyScoresVS
                 Add(game);
             }
 
+            this.IsLoading = false;
+            OnNotifyPropertyChanged("IsLoading");
             OnNotifyPropertyChanged("AnyGamesToday");
+        }
+
+        private async Task<IEnumerable<RawGameInfo>> GetGameSchedule(string todayStringCode)
+        {
+            string currentSeasonScheduleYears = GetSeasonScheduleYear();
+            if (_rawGameInfo == null || currentSeasonScheduleYears != cachedSeasonScheduleYears)
+            {
+                cachedSeasonScheduleYears = currentSeasonScheduleYears;
+                string jsonFile = await NetworkCalls.GetJsonFromApiAsync($"http://live.nhl.com/GameData/SeasonSchedule-{cachedSeasonScheduleYears}.json");
+
+                _rawGameInfo = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
+            }
+
+            return _rawGameInfo.Where(x => x.est.Contains(todayStringCode));
         }
 
         /// <summary>
@@ -142,7 +158,8 @@ namespace HockeyScoresVS
             {
                 _currentGamesDate = newDate.Date;
                 this.Clear();
-                this.Initialize();
+                this.IsLoading = true;
+                this.Initialize().ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
