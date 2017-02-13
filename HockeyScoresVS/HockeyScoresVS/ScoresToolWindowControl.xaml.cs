@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 namespace HockeyScoresVS
 {
+    using System.Collections;
     using System.Collections.ObjectModel;
     using System.Diagnostics.CodeAnalysis;
     using System.Windows;
@@ -55,6 +56,35 @@ namespace HockeyScoresVS
                 if (CurrentGames != null)
                 {
                     CurrentGames.ChangeGameDay(date.Value);
+                }
+            }
+        }
+
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.RemovedItems.Count == 1)
+            {
+                HockeyGame deselectedGame = e.RemovedItems[0] as HockeyGame;
+                deselectedGame.IsSelected = false;
+            }
+
+            if (e.AddedItems.Count == 1)
+            {
+                HockeyGame selectedGame = e.AddedItems[0] as HockeyGame;
+                selectedGame.IsSelected = true;
+
+                ListBox listBox = e.OriginalSource as ListBox;
+                if (listBox.SelectedItems != null)
+                {
+                    var valid = e.AddedItems[0];
+                    foreach (HockeyGame item in new ArrayList(listBox.SelectedItems))
+                    {
+                        if (item != valid)
+                        {
+                            item.IsSelected = false;
+                            listBox.SelectedItems.Remove(item);
+                        }
+                    }
                 }
             }
         }
