@@ -54,6 +54,7 @@
     <Compile Include="GameGoals.cs" />
     <Compile Include="Goal.cs" />
     <Compile Include="HockeyGame.cs" />
+    <Compile Include="NetworkCalls.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawGameInfo.cs" />

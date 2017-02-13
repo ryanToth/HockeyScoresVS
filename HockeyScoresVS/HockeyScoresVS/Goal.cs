@@ -9,8 +9,8 @@ namespace HockeyScoresVS
 {
     public class Goal : INotifyPropertyChanged
     {
-        private Player _scoredBy;
-        public Player ScoredBy
+        private string _scoredBy = "";
+        public string ScoredBy
         {
             get
             {
@@ -19,12 +19,12 @@ namespace HockeyScoresVS
             set
             {
                 _scoredBy = value;
-                OnNotifyPropertyChanged("ScoredBy");
+                OnNotifyPropertyChanged("GoalScoredText");
             }
         }
 
-        private Player _primaryAssist;
-        public Player PrimaryAssist
+        private string _primaryAssist = "";
+        public string PrimaryAssist
         {
             get
             {
@@ -33,12 +33,12 @@ namespace HockeyScoresVS
             set
             {
                 _primaryAssist = value;
-                OnNotifyPropertyChanged("PrimaryAssist");
+                OnNotifyPropertyChanged("AssistedByText");
             }
         }
 
-        private Player _secondaryAssist;
-        public Player SecondaryAssist
+        private string _secondaryAssist = "";
+        public string SecondaryAssist
         {
             get
             {
@@ -47,7 +47,21 @@ namespace HockeyScoresVS
             set
             {
                 _secondaryAssist = value;
-                OnNotifyPropertyChanged("SecondaryAssist");
+                OnNotifyPropertyChanged("AssistedByText");
+            }
+        }
+
+        private string _team = "";
+        public string Team
+        {
+            get
+            {
+                return _team;
+            }
+            set
+            {
+                _team = value;
+                OnNotifyPropertyChanged("GoalScoredText");
             }
         }
 
@@ -55,7 +69,17 @@ namespace HockeyScoresVS
         {
             get
             {
-                return "Goal Scored";
+                if (Team != "" && ScoredBy != "")
+                {
+                    return $"{Team} {ScoredBy}";
+                }
+                else if (Team != "")
+                {
+                    return $"{Team} scored a goal";
+                }
+
+                return "Goal was scored";
+                
             }
         }
 
@@ -63,7 +87,16 @@ namespace HockeyScoresVS
         {
             get
             {
-                return "Assisted by people and stuff";
+                if (PrimaryAssist == "")
+                {
+                    return "Unassisted";
+                }
+                else if (SecondaryAssist == "")
+                {
+                    return $"{PrimaryAssist}";
+                }
+                
+                return $"{PrimaryAssist}, {SecondaryAssist}";
             }
         }
 
@@ -71,11 +104,32 @@ namespace HockeyScoresVS
         {
         }
 
-        public Goal(Player scoredBy, Player primaryAssist, Player secondaryAssist)
+        public Goal(string team, string goalString)
         {
-            this._scoredBy = scoredBy;
-            this._primaryAssist = primaryAssist;
-            this._secondaryAssist = secondaryAssist;
+            this.Team = team;
+            try
+            {
+                this.ScoredBy = goalString.Split(',')[0];
+            }
+            catch (Exception) { }
+            try
+            {
+                this.PrimaryAssist = goalString.Split(',')[1];
+            }
+            catch (Exception) { }
+            try
+            {
+                this.SecondaryAssist = goalString.Split(',')[2];
+            }
+            catch (Exception) { }
+        }
+
+        public Goal(string team, string scoredBy, string primaryAssist, string secondaryAssist)
+        {
+            this.Team = team;
+            this.ScoredBy = scoredBy;
+            this.PrimaryAssist = primaryAssist;
+            this.SecondaryAssist = secondaryAssist;
         }
 
         #region INotifyPropertyChanged Members

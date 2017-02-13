@@ -64,7 +64,7 @@
     </Style>
 
     <DataTemplate x:Uid="GoalsScoredTemplate" x:Key="GoalsScoredTemplate">
-        <Border BorderBrush="CornflowerBlue" BorderThickness="4" Style="{StaticResource ShowGoalsScoredStyle}">
+        <Border BorderBrush="CornflowerBlue" BorderThickness="4" Style="{StaticResource ShowGoalsScoredStyle}"  MaxWidth="225" Width="225">
             <StackPanel x:Name="GoalsScored" Background="AliceBlue" DataContext="{Binding GameGoals}">
                 <StackPanel x:Name="FirstPeriodGoals" Style="{StaticResource ShowGoalsStyle}" DataContext="{Binding Path=FirstPeriodGoals}">
                     <TextBlock x:Name="FirstPeriodGoalsSeparator" Padding="5,5,5,0">1st Period</TextBlock>

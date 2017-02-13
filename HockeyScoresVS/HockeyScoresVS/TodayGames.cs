@@ -28,15 +28,7 @@ namespace HockeyScoresVS
                 if (_rawGameInfo == null || currentSeasonScheduleYears != cachedSeasonScheduleYears)
                 {
                     cachedSeasonScheduleYears = currentSeasonScheduleYears;
-                    WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/SeasonSchedule-{cachedSeasonScheduleYears}.json");
-                    WebResponse response = request.GetResponse();
-
-                    Stream dataStream = response.GetResponseStream();
-                    StreamReader reader = new StreamReader(dataStream);
-
-                    string jsonFile = reader.ReadToEnd();
-                    reader.Close();
-                    response.Close();
+                    string jsonFile = NetworkCalls.GetJsonFromApi($"http://live.nhl.com/GameData/SeasonSchedule-{cachedSeasonScheduleYears}.json");
 
                     _rawGameInfo = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
                 }

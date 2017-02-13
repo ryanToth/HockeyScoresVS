@@ -195,6 +195,11 @@ namespace HockeyScoresVS
             {
                 _isSelected = value;
                 OnNotifyPropertyChanged("IsSelected");
+
+                if (_isSelected)
+                { 
+                    this.GameGoals.GetUpdateScoringSummary().ConfigureAwait(continueOnCapturedContext: false);
+                }
             }
         }
 
@@ -202,7 +207,7 @@ namespace HockeyScoresVS
 
         public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id, string dateCode, string seasonCode)
         {
-            this.GameGoals = new GameGoals();
+            this.GameGoals = new GameGoals(seasonCode, id);
             this.StartTime = startTime;
             this.HomeTeam = homeTeam;
             this.AwayTeam = awayTeam;
@@ -261,17 +266,8 @@ namespace HockeyScoresVS
         {
             try
             {
-                WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/{_seasonCode}/{_id}/gc/gcsb.jsonp");
-                WebResponse response = await request.GetResponseAsync();
+                JObject gameData = await NetworkCalls.ApiCallAsync($"http://live.nhl.com/GameData/{_seasonCode}/{_id}/gc/gcsb.jsonp");
 
-                Stream dataStream = response.GetResponseStream();
-                StreamReader reader = new StreamReader(dataStream);
-
-                string jsonFile = await reader.ReadToEndAsync();
-                reader.Close();
-                response.Close();
-            
-                JObject gameData = JObject.Parse(jsonFile.Substring(10, jsonFile.Length - 11));
                 this.Period = gameData["p"].Value<string>();
                 this.SecondsLeftInPeriod = gameData["sr"].Value<int>();
                 this.HomeTeamScore = gameData["h"]["tot"]["g"].Value<int>();
