@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HockeyScoresVS
@@ -46,7 +45,7 @@ namespace HockeyScoresVS
             OTGoals.Clear();
         }
 
-        public void RefreshGoalSummary(List<List<Goal>> updatedScoringSummary)
+        public void RefreshGoalSummary(List<IEnumerable<Goal>> updatedScoringSummary)
         {
             this.Clear();
 
@@ -72,17 +71,44 @@ namespace HockeyScoresVS
 
         public async Task GetUpdateScoringSummary()
         {
-            List<Goal> tempFirstPeriodGoals = new List<Goal>();
-            List<Goal> tempSecondPeriodGoals = new List<Goal>();
-            List<Goal> tempThirdPeriodGoals = new List<Goal>();
-            List<Goal> tempOTGoals = new List<Goal>();
+            IEnumerable<Goal> tempFirstPeriodGoals = Enumerable.Empty<Goal>();
+            IEnumerable<Goal> tempSecondPeriodGoals = Enumerable.Empty<Goal>();
+            IEnumerable<Goal> tempThirdPeriodGoals = Enumerable.Empty<Goal>();
+            IEnumerable<Goal> tempOTGoals = Enumerable.Empty<Goal>();
 
             JObject gameData = await NetworkCalls.ApiCallAsync($"http://live.nhl.com/GameData/{_seasonCode}/{_gameCode}/gc/gcbx.jsonp");
 
             var goals = gameData["goalSummary"].Values();
-            int i = 1;
+
+            List<Goal> tempGoalsList = new List<Goal>();
+
             foreach (var goalsList in goals)
             {
+                try
+                {
+                    int period = goalsList.First().Value<int>();
+
+                    switch (period)
+                    {
+                        case 1:
+                            tempFirstPeriodGoals = new List<Goal>(tempGoalsList);
+                            break;
+                        case 2:
+                            tempSecondPeriodGoals = new List<Goal>(tempGoalsList);
+                            break;
+                        case 3:
+                            tempThirdPeriodGoals = new List<Goal>(tempGoalsList);
+                            break;
+                        case 4:
+                            tempOTGoals = new List<Goal>(tempGoalsList);
+                            break;
+                    }
+
+                    tempGoalsList = new List<Goal>();
+                    continue;
+                }
+                catch (Exception) { }
+
                 foreach (var goal in goalsList.First())
                 {
                     string goalString = "";
@@ -93,30 +119,16 @@ namespace HockeyScoresVS
                         goalString = goal["desc"].Value<string>();
                         team = goal["t1"].Value<string>();
                     }
-                    catch (Exception) { }
+                    catch (Exception)
+                    {
+                        
+                    }
 
-                    if (i == 1)
-                    {
-                        tempFirstPeriodGoals.Add(new Goal(team, goalString));
-                    }
-                    if (i == 3)
-                    {
-                        tempSecondPeriodGoals.Add(new Goal(team, goalString));
-                    }
-                    if (i == 5)
-                    {
-                        tempThirdPeriodGoals.Add(new Goal(team, goalString));
-                    }
-                    if (i == 7)
-                    {
-                        tempOTGoals.Add(new Goal(team, goalString));
-                    }
+                    tempGoalsList.Add(new Goal(team, goalString));
                 }
-
-                i++;
             }
 
-            var list = new List<List<Goal>>() { tempFirstPeriodGoals, tempSecondPeriodGoals, tempThirdPeriodGoals, tempOTGoals };
+            var list = new List<IEnumerable<Goal>>() { tempFirstPeriodGoals, tempSecondPeriodGoals, tempThirdPeriodGoals, tempOTGoals };
             this.RefreshGoalSummary(list);
         }
 
