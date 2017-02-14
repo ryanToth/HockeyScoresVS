@@ -46,12 +46,15 @@
     </Style>
 
     <DataTemplate x:Uid="GoalTemplate" x:Key="GoalTemplate">
-        <Border Padding="2,2,2,2" BorderThickness="1">
-            <StackPanel>
-                <TextBlock x:Name="GoalScored" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="11" FontWeight="Bold" VerticalAlignment="Bottom" Text="{Binding GoalScoredText}"/>
-                <TextBlock x:Name="GoalAssisted" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Bottom" TextAlignment="Left" Text="{Binding AssistedByText}"/>
-            </StackPanel>
-        </Border>
+        <StackPanel>
+            <Border Padding="2,2,2,0" BorderThickness="3">
+                <StackPanel>
+                    <TextBlock x:Name="GoalScored" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="11" FontWeight="Bold" VerticalAlignment="Bottom" Text="{Binding GoalScoredText}"/>
+                    <TextBlock x:Name="GoalAssisted" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Bottom" TextAlignment="Left" Text="{Binding AssistedByText}"/>
+                </StackPanel>
+            </Border>
+            <Border Padding="5,2,5,0" Width="215" BorderThickness="2" Background="CornflowerBlue" HorizontalAlignment="Center"/>
+        </StackPanel>
     </DataTemplate>
 
     <Style x:Uid="ShowGoalsStyle" x:Key="ShowGoalsStyle" TargetType="{x:Type StackPanel}">
