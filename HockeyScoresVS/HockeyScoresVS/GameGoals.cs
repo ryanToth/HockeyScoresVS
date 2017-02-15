@@ -128,7 +128,8 @@ namespace HockeyScoresVS
                 }
             }
 
-            var list = new List<IEnumerable<Goal>>() { tempFirstPeriodGoals, tempSecondPeriodGoals, tempThirdPeriodGoals, tempOTGoals };
+            // Don't reverse OT, there can only ever be one goal there
+            var list = new List<IEnumerable<Goal>>() { tempFirstPeriodGoals.Reverse(), tempSecondPeriodGoals.Reverse(), tempThirdPeriodGoals.Reverse(), tempOTGoals };
             this.RefreshGoalSummary(list);
         }
 
