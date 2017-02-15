@@ -73,6 +73,11 @@ namespace HockeyScoresVS
         {
             ScoresToolWindowCommand.Initialize(this);
             base.Initialize();
+
+            ScoresToolWindowCommand.Instance.FavouriteTeam = this.FavouriteTeam;
+
+            OptionsPageGrid page = (OptionsPageGrid)GetDialogPage(typeof(OptionsPageGrid));
+            page.PropertyChanged += FavouriteTeam_Changed;
         }
 
         public string FavouriteTeam
@@ -83,11 +88,16 @@ namespace HockeyScoresVS
                 return page.FavouriteTeam;
             }
         }
+
+        private void FavouriteTeam_Changed(object sender, PropertyChangedEventArgs e)
+        {
+            ScoresToolWindowCommand.Instance.FavouriteTeam = this.FavouriteTeam;
+        }
         #endregion
     }
 
     [Guid("6186abe0-05e7-4361-bca1-bc48bcab6771")]
-    public class OptionsPageGrid : DialogPage
+    public class OptionsPageGrid : DialogPage, INotifyPropertyChanged
     {
         private string _favouriteTeam = "";
 
@@ -102,7 +112,11 @@ namespace HockeyScoresVS
             }
             set
             {
-                _favouriteTeam = value;
+                if (_favouriteTeam != value)
+                {
+                    _favouriteTeam = value;
+                    OnNotifyPropertyChanged("FavouriteTeam");
+                }
             }
         }
 
@@ -116,5 +130,19 @@ namespace HockeyScoresVS
                 return page;
             }
         }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnNotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
     }
 }

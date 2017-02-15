@@ -19,6 +19,22 @@ namespace HockeyScoresVS
         private DateTime _currentGamesDate = DateTime.Now.Date;
         private string cachedSeasonScheduleYears = "";
 
+        private string _favouriteTeam = "";
+        public string FavouriteTeam
+        {
+            get
+            {
+                return _favouriteTeam;
+            }
+
+            set
+            {
+                _favouriteTeam = value;
+                this.OrderGamesForStartTime();
+                this.MoveFavouriteTeamGame();
+            }
+        }
+
         private bool _isLoading;
         public bool IsLoading
         {
@@ -40,20 +56,21 @@ namespace HockeyScoresVS
         //private int pollingInterval = 3600000;
         private object _lock = new object();
 
-        public TodayGames()
+        public TodayGames(string favouriteTeam)
         {
             lock(_lock)
             {
                 this.IsLoading = true;
                 //this._timer = new Timer(CheckForTomorrow, new AutoResetEvent(true), 0, pollingInterval);
-                this.Initialize().ConfigureAwait(continueOnCapturedContext: false);
+                this.Initialize(favouriteTeam).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
-        private async Task Initialize()
+        private async Task Initialize(string favouriteTeam)
         {
             string todayStringCode = GetTodayStringCode();
             var todaysGames = await GetGameSchedule(todayStringCode);
+            this._favouriteTeam = favouriteTeam;
 
             List<HockeyGame> tempList = new List<HockeyGame>();
 
@@ -69,6 +86,8 @@ namespace HockeyScoresVS
             {
                 Add(game);
             }
+
+            this.MoveFavouriteTeamGame();
 
             this.IsLoading = false;
             OnNotifyPropertyChanged("IsLoading");
@@ -152,6 +171,29 @@ namespace HockeyScoresVS
         }
         */
 
+        private void MoveFavouriteTeamGame()
+        {
+            if (FavouriteTeam != null)
+            {
+                var game = this.FirstOrDefault(x => x.HomeTeam.Name == FavouriteTeam || x.AwayTeam.Name == FavouriteTeam);
+                if (game != null)
+                {
+                    this.MoveItem(this.IndexOf(game), 0);
+                }
+            }
+        }
+
+        private void OrderGamesForStartTime()
+        {
+            List<HockeyGame> games = new List<HockeyGame>(this.AsEnumerable());
+            games.Sort();
+            this.Clear();
+            foreach (var game in games)
+            {
+                Add(game);
+            }
+        }
+
         public void ChangeGameDay(DateTime newDate)
         {
             lock (_lock)
@@ -159,7 +201,7 @@ namespace HockeyScoresVS
                 _currentGamesDate = newDate.Date;
                 this.Clear();
                 this.IsLoading = true;
-                this.Initialize().ConfigureAwait(continueOnCapturedContext: false);
+                this.Initialize(FavouriteTeam).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
