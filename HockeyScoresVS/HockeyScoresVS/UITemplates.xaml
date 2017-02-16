@@ -53,7 +53,7 @@
                     <TextBlock x:Name="GoalAssisted" Padding="10,0,0,0" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Bottom" TextAlignment="Left" Text="{Binding AssistedByText}"/>
                 </StackPanel>
             </Border>
-            <Border Padding="5,2,5,0" Width="215" BorderThickness="2" Background="CornflowerBlue" HorizontalAlignment="Center"/>
+            <Border Padding="5,2,5,0" Width="215" BorderThickness="2" Background="DimGray" HorizontalAlignment="Center"/>
         </StackPanel>
     </DataTemplate>
 
@@ -67,7 +67,7 @@
     </Style>
 
     <DataTemplate x:Uid="GoalsScoredTemplate" x:Key="GoalsScoredTemplate">
-        <Border BorderBrush="CornflowerBlue" BorderThickness="4" Style="{StaticResource ShowGoalsScoredStyle}"  MaxWidth="225" Width="225">
+        <Border BorderBrush="{Binding BorderColor}" BorderThickness="4" Style="{StaticResource ShowGoalsScoredStyle}"  MaxWidth="225" Width="225">
             <StackPanel x:Name="GoalsScored" Background="AliceBlue" DataContext="{Binding GameGoals}">
                 <StackPanel x:Name="FirstPeriodGoals" Style="{StaticResource ShowGoalsStyle}" DataContext="{Binding Path=FirstPeriodGoals}">
                     <TextBlock x:Name="FirstPeriodGoalsSeparator" Padding="5,5,5,0">1st Period</TextBlock>

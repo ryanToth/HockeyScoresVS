@@ -31,7 +31,7 @@ namespace HockeyScoresVS
 
         public void InitializeContent()
         {
-            this.DataContext = CurrentGames = new TodayGames("");
+            this.DataContext = CurrentGames = new TodayGames(ScoresToolWindowCommand.Instance.FavouriteTeam);
         }
 
         public void Dispose()

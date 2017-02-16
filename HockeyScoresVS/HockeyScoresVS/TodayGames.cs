@@ -31,6 +31,7 @@ namespace HockeyScoresVS
             {
                 _favouriteTeam = value;
                 this.OrderGamesForStartTime();
+                this.ResetGameBorderColors();
                 this.MoveFavouriteTeamGame();
             }
         }
@@ -179,7 +180,16 @@ namespace HockeyScoresVS
                 if (game != null)
                 {
                     this.MoveItem(this.IndexOf(game), 0);
+                    game.BorderColor = HockeyGame.FavouriteBorderColor;
                 }
+            }
+        }
+
+        private void ResetGameBorderColors()
+        {
+            foreach (var game in this)
+            {
+                game.BorderColor = HockeyGame.DefaultBorderColor;
             }
         }
 
