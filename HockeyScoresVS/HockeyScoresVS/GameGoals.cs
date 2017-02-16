@@ -87,6 +87,7 @@ namespace HockeyScoresVS
                 try
                 {
                     int period = goalsList.First().Value<int>();
+                    tempGoalsList.Sort();
 
                     switch (period)
                     {
@@ -113,23 +114,25 @@ namespace HockeyScoresVS
                 {
                     string goalString = "";
                     string team = "";
+                    int? secondsInPeriod = null;
 
                     try
                     {
                         goalString = goal["desc"].Value<string>();
                         team = goal["t1"].Value<string>();
+                        secondsInPeriod = goal["sip"].Value<int?>();
                     }
                     catch (Exception)
                     {
                         
                     }
 
-                    tempGoalsList.Add(new Goal(team, goalString));
+                    tempGoalsList.Add(new Goal(team, goalString, secondsInPeriod));
                 }
             }
 
             // Don't reverse OT, there can only ever be one goal there
-            var list = new List<IEnumerable<Goal>>() { tempFirstPeriodGoals.Reverse(), tempSecondPeriodGoals.Reverse(), tempThirdPeriodGoals.Reverse(), tempOTGoals };
+            var list = new List<IEnumerable<Goal>>() { tempFirstPeriodGoals, tempSecondPeriodGoals, tempThirdPeriodGoals, tempOTGoals };
             this.RefreshGoalSummary(list);
         }
 

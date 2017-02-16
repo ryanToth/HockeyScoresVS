@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
-    public class Goal : INotifyPropertyChanged
+    public class Goal : INotifyPropertyChanged, IComparable<Goal>
     {
+        private int? _goalTime;
+
         private string _scoredBy = "";
         public string ScoredBy
         {
@@ -104,7 +106,7 @@ namespace HockeyScoresVS
         {
         }
 
-        public Goal(string team, string goalString)
+        public Goal(string team, string goalString, int? secondsInPeriod)
         {
             this.Team = team;
             try
@@ -122,6 +124,7 @@ namespace HockeyScoresVS
                 this.SecondaryAssist = goalString.Split(',')[2];
             }
             catch (Exception) { }
+            this._goalTime = secondsInPeriod;
         }
 
         public Goal(string team, string scoredBy, string primaryAssist, string secondaryAssist)
@@ -142,6 +145,22 @@ namespace HockeyScoresVS
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        #endregion
+
+        #region IComparable Members
+        public int CompareTo(Goal other)
+        {
+            if (this._goalTime.HasValue && !other._goalTime.HasValue) return 1;
+            else if (!this._goalTime.HasValue && other._goalTime.HasValue) return -1;
+            else if (this._goalTime.HasValue && other._goalTime.HasValue)
+            {
+                if (this._goalTime.Value < this._goalTime.Value) return 1;
+                else if (this._goalTime.Value > this._goalTime.Value) return -1;
+            }
+
+            return 0;
         }
 
         #endregion
