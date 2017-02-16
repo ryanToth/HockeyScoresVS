@@ -66,6 +66,12 @@
     <Compile Include="ScoresToolWindowPackage.cs" />
     <Compile Include="Team.cs" />
     <Compile Include="TodayGames.cs" />
+    <Compile Include="ToolsOptionsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ToolsOptionsUserControl.Designer.cs">
+      <DependentUpon>ToolsOptionsUserControl.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -77,8 +83,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
-    <Content Include="Resources\ScoresToolWindowCommand.png" />
-    <Content Include="Resources\ScoresToolWindowPackage.ico" />
     <VSCTCompile Include="ScoresToolWindowPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
@@ -200,6 +204,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ToolsOptionsUserControl.resx">
+      <DependentUpon>ToolsOptionsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
       <ManifestResourceName>VSPackage</ManifestResourceName>

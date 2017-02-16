@@ -36,5 +36,10 @@ namespace HockeyScoresVS
             // the object returned by the Content property.
             this.Content = new ScoresToolWindowControl();
         }
+
+        public void SetFavouriteTeam(string favouriteTeam)
+        {
+            (this.Content as ScoresToolWindowControl).SetFavouriteTeam(favouriteTeam);
+        }
     }
 }

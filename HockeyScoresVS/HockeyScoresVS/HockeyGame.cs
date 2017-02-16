@@ -18,12 +18,13 @@ namespace HockeyScoresVS
         private const int DataRefreshInterval = 5000;
         // Every 10 minutes
         private const int HasGameStartedCheckInterval = 600000;
-        private const string DefaultBorderColor = "CornflowerBlue";
-        private const string GoalBorderColor = "IndianRed";
         private Timer _refreshDataTimer;
         private string _id;
         private string _dateCode;
         private string _seasonCode;
+        public const string DefaultBorderColor = "CornflowerBlue";
+        public const string FavouriteBorderColor = "Goldenrod";
+        private const string GoalBorderColor = "IndianRed";
 
         public string StartTime { get; }
 
@@ -238,6 +239,11 @@ namespace HockeyScoresVS
                 initialInterval = HasGameStartedCheckInterval;
             }
 
+            if (HomeTeam.Name == ScoresToolWindowCommand.Instance.FavouriteTeam || AwayTeam.Name == ScoresToolWindowCommand.Instance.FavouriteTeam)
+            {
+                this.BorderColor = FavouriteBorderColor;
+            }
+
             _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), initialInterval, initialInterval);
         }
 
@@ -281,12 +287,28 @@ namespace HockeyScoresVS
         private async Task GoalHorn()
         {
             await Task.Yield();
+            string originalBorderColor = BorderColor;
             for (int i = 0; i < 10; i++)
             {
                 BorderColor = GoalBorderColor;
                 Thread.Sleep(200);
-                BorderColor = DefaultBorderColor;
+
+                // If the user changes their favourite team as a goal celebration is happening it could mess up the UI
+                if (BorderColor != GoalBorderColor)
+                {
+                    originalBorderColor = BorderColor;
+                }
+                else
+                {
+                    BorderColor = originalBorderColor;
+                }
+                
                 Thread.Sleep(200);
+
+                if (originalBorderColor != BorderColor)
+                {
+                    originalBorderColor = BorderColor;
+                }
             }
         }
 

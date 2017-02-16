@@ -20,7 +20,6 @@ namespace HockeyScoresVS
     public partial class ScoresToolWindowControl : UserControl
     {
         public TodayGames CurrentGames;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ScoresToolWindowControl"/> class.
         /// </summary>
@@ -32,12 +31,17 @@ namespace HockeyScoresVS
 
         public void InitializeContent()
         {
-            this.DataContext = CurrentGames = new TodayGames();
+            this.DataContext = CurrentGames = new TodayGames(ScoresToolWindowCommand.Instance.FavouriteTeam);
         }
 
         public void Dispose()
         {
             this.CurrentGames.Dispose();
+        }
+
+        public void SetFavouriteTeam(string favouriteTeam)
+        {
+            CurrentGames.FavouriteTeam = favouriteTeam;
         }
 
         private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
