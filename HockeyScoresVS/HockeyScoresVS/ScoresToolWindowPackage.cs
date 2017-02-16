@@ -15,6 +15,8 @@ using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
+using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace HockeyScoresVS
 {
@@ -41,6 +43,8 @@ namespace HockeyScoresVS
     [ProvideToolWindow(typeof(ScoresToolWindow), Width = 225)]
     [Guid(ScoresToolWindowPackage.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    [ProvideOptionPage(typeof(OptionsPageGrid),
+        "NHL Scores", "Favourite Team", 0, 0, true)]
     public sealed class ScoresToolWindowPackage : Package
     {
         /// <summary>
@@ -69,6 +73,74 @@ namespace HockeyScoresVS
         {
             ScoresToolWindowCommand.Initialize(this);
             base.Initialize();
+
+            ScoresToolWindowCommand.Instance.FavouriteTeam = this.FavouriteTeam;
+
+            OptionsPageGrid page = (OptionsPageGrid)GetDialogPage(typeof(OptionsPageGrid));
+            page.PropertyChanged += FavouriteTeam_Changed;
+        }
+
+        public string FavouriteTeam
+        {
+            get
+            {
+                OptionsPageGrid page = (OptionsPageGrid)GetDialogPage(typeof(OptionsPageGrid));
+                return page.FavouriteTeam;
+            }
+        }
+
+        private void FavouriteTeam_Changed(object sender, PropertyChangedEventArgs e)
+        {
+            ScoresToolWindowCommand.Instance.FavouriteTeam = this.FavouriteTeam;
+        }
+        #endregion
+    }
+
+    [Guid("6186abe0-05e7-4361-bca1-bc48bcab6771")]
+    public class OptionsPageGrid : DialogPage, INotifyPropertyChanged
+    {
+        private string _favouriteTeam = "";
+
+        [Category("NHL Scores")]
+        [DisplayName("Favourite Team")]
+        [Description("Your favourite NHL team will always be at the top of the games list")]
+        public string FavouriteTeam
+        {
+            get
+            {
+                return _favouriteTeam;
+            }
+            set
+            {
+                if (_favouriteTeam != value)
+                {
+                    _favouriteTeam = value;
+                    OnNotifyPropertyChanged("FavouriteTeam");
+                }
+            }
+        }
+
+        protected override IWin32Window Window
+        {
+            get
+            {
+                ToolsOptionsUserControl page = new ToolsOptionsUserControl();
+                page.optionsPage = this;
+                page.Initialize();
+                return page;
+            }
+        }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnNotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         #endregion
