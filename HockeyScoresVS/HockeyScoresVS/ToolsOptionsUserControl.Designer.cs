@@ -33,6 +33,8 @@ namespace HockeyScoresVS
         {
             this.teamsComboBox = new System.Windows.Forms.ComboBox();
             this.favouriteTeamLabel = new System.Windows.Forms.Label();
+            this.groupBox = new System.Windows.Forms.GroupBox();
+            this.groupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // teamsComboBox
@@ -69,8 +71,7 @@ namespace HockeyScoresVS
             "VAN",
             "WPG",
             "WSH"});
-            
-            this.teamsComboBox.Location = new System.Drawing.Point(108, 3);
+            this.teamsComboBox.Location = new System.Drawing.Point(112, 24);
             this.teamsComboBox.Name = "teamsComboBox";
             this.teamsComboBox.Size = new System.Drawing.Size(150, 21);
             this.teamsComboBox.TabIndex = 0;
@@ -79,20 +80,31 @@ namespace HockeyScoresVS
             // favouriteTeamLabel
             // 
             this.favouriteTeamLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.favouriteTeamLabel.Location = new System.Drawing.Point(3, 6);
+            this.favouriteTeamLabel.Location = new System.Drawing.Point(6, 27);
             this.favouriteTeamLabel.Name = "favouriteTeamLabel";
             this.favouriteTeamLabel.Size = new System.Drawing.Size(100, 23);
             this.favouriteTeamLabel.TabIndex = 1;
             this.favouriteTeamLabel.Text = "Favourite Team: ";
             // 
+            // groupBox
+            // 
+            this.groupBox.Controls.Add(this.favouriteTeamLabel);
+            this.groupBox.Controls.Add(this.teamsComboBox);
+            this.groupBox.Location = new System.Drawing.Point(0, 0);
+            this.groupBox.Name = "groupBox";
+            this.groupBox.Size = new System.Drawing.Size(391, 68);
+            this.groupBox.TabIndex = 0;
+            this.groupBox.TabStop = false;
+            this.groupBox.Text = "NHL Scores Settings";
+            // 
             // ToolsOptionsUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.teamsComboBox);
-            this.Controls.Add(this.favouriteTeamLabel);
+            this.Controls.Add(this.groupBox);
             this.Name = "ToolsOptionsUserControl";
-            this.Size = new System.Drawing.Size(266, 30);
+            this.Size = new System.Drawing.Size(401, 77);
+            this.groupBox.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -101,5 +113,6 @@ namespace HockeyScoresVS
 
         private ComboBox teamsComboBox;
         private Label favouriteTeamLabel;
+        private GroupBox groupBox;
     }
 }

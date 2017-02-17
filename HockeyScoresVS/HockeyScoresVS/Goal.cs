@@ -127,14 +127,6 @@ namespace HockeyScoresVS
             this._goalTime = secondsInPeriod;
         }
 
-        public Goal(string team, string scoredBy, string primaryAssist, string secondaryAssist)
-        {
-            this.Team = team;
-            this.ScoredBy = scoredBy;
-            this.PrimaryAssist = primaryAssist;
-            this.SecondaryAssist = secondaryAssist;
-        }
-
         #region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -152,12 +144,12 @@ namespace HockeyScoresVS
         #region IComparable Members
         public int CompareTo(Goal other)
         {
-            if (this._goalTime.HasValue && !other._goalTime.HasValue) return 1;
-            else if (!this._goalTime.HasValue && other._goalTime.HasValue) return -1;
+            if (this._goalTime.HasValue && !other._goalTime.HasValue) return -1;
+            else if (!this._goalTime.HasValue && other._goalTime.HasValue) return 1;
             else if (this._goalTime.HasValue && other._goalTime.HasValue)
             {
-                if (this._goalTime.Value < this._goalTime.Value) return 1;
-                else if (this._goalTime.Value > this._goalTime.Value) return -1;
+                if (this._goalTime.Value < other._goalTime.Value) return -1;
+                else if (this._goalTime.Value > other._goalTime.Value) return 1;
             }
 
             return 0;
