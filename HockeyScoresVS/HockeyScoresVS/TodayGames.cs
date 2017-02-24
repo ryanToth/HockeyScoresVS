@@ -104,6 +104,11 @@ namespace HockeyScoresVS
                 string jsonFile = await NetworkCalls.GetJsonFromApiAsync($"http://live.nhl.com/GameData/SeasonSchedule-{cachedSeasonScheduleYears}.json");
 
                 _rawGameInfo = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
+
+                if (_rawGameInfo == null)
+                {
+                    _rawGameInfo = new List<RawGameInfo>();
+                }
             }
 
             return _rawGameInfo.Where(x => x.est.Contains(todayStringCode));
