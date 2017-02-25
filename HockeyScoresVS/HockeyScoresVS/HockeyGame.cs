@@ -246,7 +246,7 @@ namespace HockeyScoresVS
             if (HasGameStartedYet)
             {
                 initialInterval = DataRefreshInterval;
-                Task.Run(async () => await GetGameData());
+                Task.Run(async () => await RefreshGameData());
             }
             else
             {
@@ -272,11 +272,11 @@ namespace HockeyScoresVS
                     _refreshDataTimer.Change(DataRefreshInterval, DataRefreshInterval);
                 }
                 
-                await GetGameData();
+                await RefreshGameData();
             }
         }
 
-        private async Task GetGameData()
+        private async Task RefreshGameData()
         {
             try
             {
