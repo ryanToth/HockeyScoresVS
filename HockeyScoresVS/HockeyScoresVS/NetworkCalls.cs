@@ -29,21 +29,31 @@ namespace HockeyScoresVS
         {
             WebRequest request = WebRequest.Create(uri);
             WebResponse response;
+            Stream dataStream = null;
+            StreamReader reader = null;
             string jsonFile = "";
 
             try
             {
                 response = await request.GetResponseAsync();
 
-                Stream dataStream = response.GetResponseStream();
-                StreamReader reader = new StreamReader(dataStream);
+                dataStream = response.GetResponseStream();
+                reader = new StreamReader(dataStream);
 
                 jsonFile = await reader.ReadToEndAsync();
-                reader.Close();
-                response.Close();
             }
             catch { }
-            
+            finally
+            {
+                if (dataStream != null)
+                {
+                    dataStream.Close();
+                }
+                if (reader != null)
+                {
+                    reader.Close();
+                }
+            }
 
             return jsonFile;
         }

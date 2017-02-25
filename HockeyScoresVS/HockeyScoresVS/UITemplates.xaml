@@ -12,7 +12,7 @@
 
     <DataTemplate x:Uid="GameOverTimeTemplate" x:Key="GameOverTimeTemplate">
         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource GameHasNotStartedYetStyle}">
-            <TextBlock x:Name="Period" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Final"/>
+            <TextBlock x:Name="Period" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding FinalText}"/>
         </StackPanel>
     </DataTemplate>
 

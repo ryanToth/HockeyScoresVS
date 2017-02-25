@@ -204,6 +204,20 @@ namespace HockeyScoresVS
             }
         }
 
+        private string _finalText = "Final";
+        public string FinalText
+        {
+            get
+            {
+                if (_period == "5")
+                {
+                    return $"Shootout\n    {_finalText}";
+                }
+
+                return _finalText;
+            }
+        }
+
         public GameGoals GameGoals { get; }
 
         public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id, string dateCode, string seasonCode)
@@ -260,12 +274,6 @@ namespace HockeyScoresVS
                 
                 await GetGameData();
             }
-            if (IsGameOver)
-            {
-                OnNotifyPropertyChanged("IsGameOver");
-                // Stop refreshing the game data if the game is over
-                _refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
         }
 
         private async Task GetGameData()
@@ -282,6 +290,14 @@ namespace HockeyScoresVS
                 _suppressGoalHorn = false;
             }
             catch (Exception) { /* Don't crash VS if any of the above lines throw, just try to poll again next period */ }
+
+            if (IsGameOver)
+            {
+                OnNotifyPropertyChanged("IsGameOver");
+                OnNotifyPropertyChanged("FinalText");
+                // Stop refreshing the game data if the game is over
+                _refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            }
         }
 
         private async Task GoalHorn()
