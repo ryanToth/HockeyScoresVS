@@ -230,17 +230,6 @@ namespace HockeyScoresVS
             this._dateCode = dateCode;
             this._seasonCode = seasonCode;
 
-            if (IsGameOver)
-            {
-                this.SecondsLeftInPeriod = 0;
-                this._period = "3";
-            }
-            else
-            {
-                this.SecondsLeftInPeriod = 1200;
-                this._period = "1";
-            }
-
             int initialInterval;
 
             if (HasGameStartedYet)
