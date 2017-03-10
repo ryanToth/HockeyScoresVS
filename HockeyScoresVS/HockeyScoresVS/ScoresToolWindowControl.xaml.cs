@@ -92,5 +92,23 @@ namespace HockeyScoresVS
                 }
             }
         }
+
+        private void Button_Click_Tomorrow(object sender, RoutedEventArgs e)
+        {
+            if (this.DatePicker != null && this.DatePicker.SelectedDate.HasValue)
+            {
+                var date = this.DatePicker.SelectedDate.Value;
+                this.DatePicker.SelectedDate = date.AddDays(1);
+            }
+        }
+
+        private void Button_Click_Yesterday(object sender, RoutedEventArgs e)
+        {
+            if (this.DatePicker != null && this.DatePicker.SelectedDate.HasValue)
+            {
+                var date = this.DatePicker.SelectedDate.Value;
+                this.DatePicker.SelectedDate = date.AddDays(-1);
+            }
+        }
     }
 }
