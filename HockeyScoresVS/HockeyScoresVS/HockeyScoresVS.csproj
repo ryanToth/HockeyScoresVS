@@ -82,6 +82,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Icons\skip-next-circle-outline_dark.png" />
+    <Resource Include="Icons\skip-previous-circle-outline_dark.png" />
+    <Resource Include="Icons\skip-next-circle-outline.png" />
+    <Resource Include="Icons\skip-previous-circle-outline.png" />
     <Content Include="index.html" />
     <VSCTCompile Include="ScoresToolWindowPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>

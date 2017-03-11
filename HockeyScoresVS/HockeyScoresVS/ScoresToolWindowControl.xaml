@@ -17,9 +17,27 @@
     <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Disabled">
         <StackPanel HorizontalAlignment="Center" Width="258">
             <DockPanel HorizontalAlignment="Center">
-                <Button Content="&lt;" Width="22" Margin="0,0,5,0" Click="Button_Click_Yesterday"/>
+                <Button Width="24" Margin="0,0,4,0" Click="Button_Click_Yesterday" Height="24" >
+                    <Border Background="White" CornerRadius="100">
+                        <Image Source="Icons/skip-Previous-circle-outline.png" Height="24" Width="24"/>
+                    </Border>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
                 <DatePicker x:Name="DatePicker" SelectedDate="{x:Static sys:DateTime.Today}" SelectedDateChanged="DatePicker_SelectedDateChanged" Width="170" MaxWidth="239"/>
-                <Button Content=">" Width="22" Margin="5,0,0,0" Click="Button_Click_Tomorrow"/>
+                <Button  Width="24" Margin="4,0,0,0" Click="Button_Click_Tomorrow">
+                    <Border Background="White" CornerRadius="100">
+                        <Image Source="Icons/skip-next-circle-outline.png" Height="24" Width="24"/>
+                    </Border>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
             </DockPanel>
             <ContentControl Name="GameListControl" Style="{StaticResource AnyGamesTodayStyle}" Content="{Binding}" Selector.SelectionChanged="ListBox_SelectionChanged"/>
         </StackPanel>
