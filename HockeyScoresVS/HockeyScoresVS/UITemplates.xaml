@@ -88,7 +88,7 @@
             </StackPanel>
         </Border>
     </DataTemplate>
-    
+
     <DataTemplate x:Uid="GameScoreTemplate" x:Key="GameScoreTemplate">
         <StackPanel>
             <Border BorderThickness="4" BorderBrush="{Binding BorderColor}" MaxHeight="65" Height="65" MaxWidth="225" Width="225">
@@ -125,7 +125,7 @@
             Loading games . . .
         </TextBlock>
     </DataTemplate>
-    
+
     <DataTemplate x:Name="NoGamesTodayTemplate" x:Key="NoGamesTodayTemplate">
         <TextBlock x:Name="NoGamesMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{x:Static SystemColors.ControlDarkDarkBrush}" Padding="0,10,0,0">
             There are no games being played today
@@ -141,7 +141,7 @@
             </ListBox.Template>
         </ListBox>
     </DataTemplate>
-    
+
     <Style x:Uid="AnyGamesTodayStyle" x:Key="AnyGamesTodayStyle" TargetType="{x:Type ContentControl}">
         <Setter Property="ContentTemplate" Value="{StaticResource GamesTodayTemplate}"/>
         <Style.Triggers>
@@ -157,5 +157,49 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
-    
+
+    <Style TargetType="Button" x:Key="RoundBackButton">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border BorderThickness="0"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="100">
+                        <Image Source="Icons/skip-Previous-circle-outline.png" Height="24" Width="24"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsPressed" Value="True">
+                <Trigger.Setters>
+                    <Setter Property="Background" Value="LightGray"/>
+                </Trigger.Setters>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="Button" x:Key="RoundNextButton">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border BorderThickness="0"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="100">
+                        <Image Source="Icons/skip-next-circle-outline.png" Height="24" Width="24"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsPressed" Value="True">
+                <Trigger.Setters>
+                    <Setter Property="Background" Value="LightGray"/>
+                </Trigger.Setters>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
 </ResourceDictionary>
