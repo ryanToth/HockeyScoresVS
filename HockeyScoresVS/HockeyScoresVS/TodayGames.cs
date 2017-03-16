@@ -16,7 +16,7 @@ namespace HockeyScoresVS
 {
     public class TodayGames : ObservableCollection<HockeyGame>, INotifyPropertyChanged, IDisposable
     {
-        private DateTime _currentGamesDate = DateTime.Now.Date;
+        public DateTime CurrentGamesDate = DateTime.Now.Date;
         private string cachedSeasonScheduleYears = "";
 
         private string _favouriteTeam = "";
@@ -52,9 +52,6 @@ namespace HockeyScoresVS
 
         private List<RawGameInfo> _rawGameInfo;
 
-        //private Timer _timer;
-        // Once every hour
-        //private int pollingInterval = 3600000;
         private object _lock = new object();
 
         public TodayGames(string favouriteTeam)
@@ -62,7 +59,6 @@ namespace HockeyScoresVS
             lock(_lock)
             {
                 this.IsLoading = true;
-                //this._timer = new Timer(CheckForTomorrow, new AutoResetEvent(true), 0, pollingInterval);
                 this.Initialize(favouriteTeam).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
@@ -132,9 +128,9 @@ namespace HockeyScoresVS
 
         private string GetTodayStringCode()
         {
-            var day = _currentGamesDate.Day;
-            var year = _currentGamesDate.Year;
-            var month = _currentGamesDate.Month;
+            var day = CurrentGamesDate.Day;
+            var year = CurrentGamesDate.Year;
+            var month = CurrentGamesDate.Month;
 
             string dateCode = year.ToString();
             if (month < 10) dateCode += $"0{month}";
@@ -150,32 +146,17 @@ namespace HockeyScoresVS
             string years = "";
 
             // If we are getting games for after July 1st
-            if (_currentGamesDate.Month > 6 && _currentGamesDate.Day > 1)
+            if (CurrentGamesDate.Month > 6 && CurrentGamesDate.Day > 1)
             {
-                years = _currentGamesDate.Year.ToString() + (_currentGamesDate.Year + 1).ToString();
+                years = CurrentGamesDate.Year.ToString() + (CurrentGamesDate.Year + 1).ToString();
             }
             else
             {
-                years = (_currentGamesDate.Year - 1).ToString() + (_currentGamesDate.Year).ToString();
+                years = (CurrentGamesDate.Year - 1).ToString() + (CurrentGamesDate.Year).ToString();
             }
 
             return years;
         }
-
-        /*
-        private void CheckForTomorrow(object state)
-        {
-            lock(_lock)
-            {
-                // Re-initialize the game data if it's tomorrow
-                if (_currentGamesDate < DateTime.Now.Date)
-                {
-                    this.Clear();
-                    this.Initialize();
-                }
-            }
-        }
-        */
 
         private void MoveFavouriteTeamGame()
         {
@@ -213,7 +194,7 @@ namespace HockeyScoresVS
         {
             lock (_lock)
             {
-                _currentGamesDate = newDate.Date;
+                CurrentGamesDate = newDate.Date;
                 this.Clear();
                 this.IsLoading = true;
                 this.Initialize(FavouriteTeam).ConfigureAwait(continueOnCapturedContext: false);
@@ -244,9 +225,6 @@ namespace HockeyScoresVS
 
         public void Dispose()
         {
-            //_timer.Change(Timeout.Infinite, Timeout.Infinite);
-            //_timer.Dispose();
-
             foreach (var game in this)
             {
                 game.Dispose();

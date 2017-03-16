@@ -140,7 +140,7 @@ namespace HockeyScoresVS
                     return time;
                 }
 
-                if (Int32.Parse(_period) <= 3)
+                if (_period != null && Int32.Parse(_period) <= 3)
                 {
                     return "Intermission";
                 }

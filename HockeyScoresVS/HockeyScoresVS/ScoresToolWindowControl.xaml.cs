@@ -57,7 +57,7 @@ namespace HockeyScoresVS
             }
             else
             {
-                if (CurrentGames != null)
+                if (CurrentGames != null && CurrentGames.CurrentGamesDate != date.Value)
                 {
                     CurrentGames.ChangeGameDay(date.Value);
                 }
