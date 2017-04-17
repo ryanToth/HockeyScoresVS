@@ -61,10 +61,21 @@ namespace HockeyScoresVS
                         return $"Period {_period}";
                     case "4":
                         return "OT";
-                    case "5":
-                        return "Shootout";
-                    default:
-                        return _period;
+                }
+
+                if (_isPlayoffs && Int32.TryParse(_period, out int periodNum))
+                {
+                    return (periodNum - 3).ToString() + "OT";
+                }
+                else
+                {
+                    switch (_period)
+                    {
+                        case "5":
+                            return "Shootout";
+                        default:
+                            return _period;
+                    }
                 }
             }
 
@@ -72,6 +83,17 @@ namespace HockeyScoresVS
             {
                 _period = value;
                 OnNotifyPropertyChanged("Period");
+            }
+        }
+
+        private bool _isPlayoffs
+        {
+            get
+            {
+                DateTime gameDay = DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
+
+                // Assume playoffs happen after 4/11 and before September
+                return (gameDay.Month > 4 && gameDay.Month < 8) || (gameDay.Month == 4 && gameDay.Day > 11);
             }
         }
 
@@ -209,7 +231,19 @@ namespace HockeyScoresVS
         {
             get
             {
-                if (_period == "5")
+                if (_isPlayoffs && Int32.TryParse(_period, out int periodNum))
+                {
+                    string OTNumber = "";
+
+                    if (periodNum > 3)
+                    {
+                        OTNumber = periodNum > 4 ? $" {(periodNum - 3).ToString()}" : "  ";
+                        return $"{OTNumber}OT\n{_finalText}";
+                    }
+
+                    return _finalText;
+                }
+                else if (_period == "5")
                 {
                     return $"Shootout\n    {_finalText}";
                 }
