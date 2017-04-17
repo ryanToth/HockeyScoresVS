@@ -164,6 +164,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border BorderThickness="0"
+                        Padding="2,0,0,0"
                         Background="{TemplateBinding Background}"
                         CornerRadius="100">
                         <Image Source="Icons/skip-Previous-circle-outline.png" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center" />
@@ -186,9 +187,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border BorderThickness="0"
+                        Padding="2,0,0,0"
                         Background="{TemplateBinding Background}"
                         CornerRadius="100">
-                        <Image Source="Icons/skip-next-circle-outline.png" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <Image Source="Icons/skip-next-circle-outline.png" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
