@@ -69,6 +69,7 @@ namespace HockeyScoresVS
             "STL",
             "TBL",
             "VAN",
+            "VGK",
             "WPG",
             "WSH"});
             this.teamsComboBox.Location = new System.Drawing.Point(112, 24);

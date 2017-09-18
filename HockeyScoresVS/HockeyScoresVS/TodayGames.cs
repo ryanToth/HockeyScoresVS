@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.VisualStudio.PlatformUI;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,6 @@ namespace HockeyScoresVS
             {
                 _favouriteTeam = value;
                 this.OrderGamesForStartTime();
-                this.ResetGameBorderColors();
                 this.MoveFavouriteTeamGame();
             }
         }
@@ -162,22 +162,14 @@ namespace HockeyScoresVS
         {
             if (FavouriteTeam != null)
             {
-                var game = this.FirstOrDefault(x => x.HomeTeam.Name == FavouriteTeam || x.AwayTeam.Name == FavouriteTeam);
+                var game = this.FirstOrDefault(x => x.HomeTeam.TeamCode == FavouriteTeam || x.AwayTeam.TeamCode == FavouriteTeam);
                 if (game != null)
                 {
                     this.MoveItem(this.IndexOf(game), 0);
-                    game.BorderColor = HockeyGame.FavouriteBorderColor;
                 }
             }
         }
 
-        private void ResetGameBorderColors()
-        {
-            foreach (var game in this)
-            {
-                game.BorderColor = HockeyGame.DefaultBorderColor;
-            }
-        }
 
         private void OrderGamesForStartTime()
         {
