@@ -38,7 +38,7 @@ namespace HockeyScoresVS
             set
             {
                 _secondsLeftInPeriod = value;
-                OnNotifyPropertyChanged("TimeLeftInPeriod");
+                OnNotifyPropertyChanged("TimeDisplay");
             }
         }
 
@@ -253,7 +253,7 @@ namespace HockeyScoresVS
         {
             get
             {
-                if (!HasGameStartedYet)
+                if (!HasGameStartedYet || ((HasGameStartedYet && (_period == "1" && TimeLeftInPeriod == "20:00") || _period == null) && !IsGameOver))
                 {
                     return StartTime;
                 }
