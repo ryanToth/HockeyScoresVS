@@ -159,11 +159,6 @@ namespace HockeyScoresVS
                     return time;
                 }
 
-                if (_period != null && Int32.Parse(_period) <= 3)
-                {
-                    return "Intermission";
-                }
-
                 return "End";
             }
         }
@@ -249,19 +244,51 @@ namespace HockeyScoresVS
             }
         }
 
+        public bool _isGameLive;
+        public bool IsGameLive
+        {
+            get
+            {
+                return _isGameLive;
+            }
+            set
+            {
+                _isGameLive = value;
+                OnNotifyPropertyChanged("IsGameLive");
+            }
+        }
+
+        private bool ShowStartTime
+        {
+            get
+            {
+                return !HasGameStartedYet || ((HasGameStartedYet && (_period == "1" && TimeLeftInPeriod == "20:00") || _period == null) && !IsGameOver);
+            }
+        }
+
         public string TimeDisplay
         {
             get
             {
-                if (!HasGameStartedYet || ((HasGameStartedYet && (_period == "1" && TimeLeftInPeriod == "20:00") || _period == null) && !IsGameOver))
+                if (ShowStartTime)
                 {
                     return StartTime;
                 }
                 else if (HasGameStartedYet && !IsGameOver)
                 {
+                    if (!IsGameLive)
+                    {
+                        IsGameLive = true;
+                    }
+
                     if (_period == "5")
                     {
                         return Period;
+                    }
+
+                    if (SecondsLeftInPeriod == 0)
+                    {
+                        return $"End {Period}";
                     }
 
                     return $"{Period} {TimeLeftInPeriod}";
@@ -269,6 +296,11 @@ namespace HockeyScoresVS
                 // Game is Over
                 else
                 {
+                    if (IsGameLive)
+                    {
+                        IsGameLive = false;
+                    }
+
                     return FinalText;
                 }
             }
@@ -292,7 +324,10 @@ namespace HockeyScoresVS
             if (HasGameStartedYet)
             {
                 initialInterval = DataRefreshInterval;
-                Task.Run(async () => await RefreshGameData());
+                Task.Run(async () => 
+                {
+                    await RefreshGameData();
+                });
             }
             else
             {
@@ -328,8 +363,12 @@ namespace HockeyScoresVS
                 this.SecondsLeftInPeriod = gameData["sr"].Value<int>();
                 this.HomeTeamScore = gameData["h"]["tot"]["g"].Value<int>();
                 this.AwayTeamScore = gameData["a"]["tot"]["g"].Value<int>();
+                
                 // After the first time the scores are set the goal horn is enabled
-                _suppressGoalHorn = false;
+                if (_suppressGoalHorn)
+                {
+                    _suppressGoalHorn = false;
+                }
             }
             catch (Exception) { /* Don't crash VS if any of the above lines throw, just try to poll again next period */ }
 
@@ -338,6 +377,7 @@ namespace HockeyScoresVS
                 OnNotifyPropertyChanged("IsGameOver");
                 OnNotifyPropertyChanged("TimeDisplay");
                 OnNotifyPropertyChanged("FinalText");
+                this.IsGameLive = false;
                 // Stop refreshing the game data if the game is over
                 _refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }

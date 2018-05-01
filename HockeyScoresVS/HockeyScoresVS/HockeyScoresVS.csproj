@@ -86,8 +86,6 @@
   <ItemGroup>
     <Resource Include="Icons\skip-next-circle-outline_dark.png" />
     <Resource Include="Icons\skip-previous-circle-outline_dark.png" />
-    <Resource Include="Icons\skip-next-circle-outline.png" />
-    <Resource Include="Icons\skip-previous-circle-outline.png" />
     <Resource Include="Icons\Logos\ANA.gif" />
     <Resource Include="Icons\Logos\ARI.gif" />
     <Resource Include="Icons\Logos\BOS.gif" />
@@ -119,10 +117,16 @@
     <Resource Include="Icons\Logos\WPG.gif" />
     <Resource Include="Icons\Logos\WSH.gif" />
     <Resource Include="Icons\Logos\TBL.gif" />
+    <Resource Include="Icons\chevron-left-8x.png" />
+    <Resource Include="Icons\chevron-right-8x.png" />
     <Content Include="index.html" />
     <VSCTCompile Include="ScoresToolWindowPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
+    <Content Include="fr-FR\Extension.vsixlangpack">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skate.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>

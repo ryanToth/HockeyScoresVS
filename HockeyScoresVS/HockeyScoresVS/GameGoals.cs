@@ -100,7 +100,8 @@ namespace HockeyScoresVS
                         case 3:
                             tempThirdPeriodGoals = new List<Goal>(tempGoalsList);
                             break;
-                        case 4:
+                        // Any overtime goals go here (including double, triple, etc.)
+                        default:
                             tempOTGoals = new List<Goal>(tempGoalsList);
                             break;
                     }

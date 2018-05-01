@@ -170,7 +170,6 @@ namespace HockeyScoresVS
             }
         }
 
-
         private void OrderGamesForStartTime()
         {
             List<HockeyGame> games = new List<HockeyGame>(this.AsEnumerable());
