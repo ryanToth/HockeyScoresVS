@@ -8,12 +8,29 @@ namespace HockeyScoresVS
 {
     public class Team
     {
-        public string Name { get; private set; }
+        public string TeamCode { get; private set; }
+
+        public string Name
+        {
+            get
+            {
+                return Converters.TeamNameConverter(TeamCode);
+            }
+        }
+
+        public string LogoPath
+        {
+            get
+            {
+                return $"Icons/Logos/{TeamCode}.gif";
+            }
+        }
+
         public List<Goal> Goals { get; }
 
-        public Team(string name)
+        public Team(string teamCode)
         {
-            this.Name = name;
+            this.TeamCode = teamCode;
             this.Goals = new List<Goal>();
         }
     }

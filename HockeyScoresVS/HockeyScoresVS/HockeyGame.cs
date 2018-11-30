@@ -1,14 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.PlatformUI;
 
 namespace HockeyScoresVS
 {
@@ -22,9 +18,8 @@ namespace HockeyScoresVS
         private string _id;
         private string _dateCode;
         private string _seasonCode;
-        public const string DefaultBorderColor = "CornflowerBlue";
-        public const string FavouriteBorderColor = "Goldenrod";
-        private const string GoalBorderColor = "IndianRed";
+        
+        public const string GoalBackgroundColor = "IndianRed";
 
         public string StartTime { get; }
 
@@ -43,7 +38,7 @@ namespace HockeyScoresVS
             set
             {
                 _secondsLeftInPeriod = value;
-                OnNotifyPropertyChanged("TimeLeftInPeriod");
+                OnNotifyPropertyChanged("TimeDisplay");
             }
         }
 
@@ -56,9 +51,11 @@ namespace HockeyScoresVS
                 switch (_period)
                 {
                     case "1":
+                        return "1st";
                     case "2":
+                        return "2nd";
                     case "3":
-                        return $"Period {_period}";
+                        return "3rd";
                     case "4":
                         return "OT";
                 }
@@ -162,11 +159,6 @@ namespace HockeyScoresVS
                     return time;
                 }
 
-                if (_period != null && Int32.Parse(_period) <= 3)
-                {
-                    return "Intermission";
-                }
-
                 return "End";
             }
         }
@@ -193,17 +185,17 @@ namespace HockeyScoresVS
 
         private bool _suppressGoalHorn = true;
 
-        private string _borderColor = DefaultBorderColor;
-        public string BorderColor
+        private string _backgroundColor;
+        public string BackgroundColor
         {
             get
             {
-                return _borderColor;
+                return _backgroundColor;
             }
             set
             {
-                _borderColor = value;
-                OnNotifyPropertyChanged("BorderColor");
+                _backgroundColor = value;
+                OnNotifyPropertyChanged("BackgroundColor");
             }
         }
 
@@ -231,7 +223,7 @@ namespace HockeyScoresVS
         {
             get
             {
-                if (_isPlayoffs && Int32.TryParse(_period, out int periodNum))
+                if (Int32.TryParse(_period, out int periodNum) && (_isPlayoffs || periodNum == 4))
                 {
                     string OTNumber = "";
 
@@ -252,6 +244,68 @@ namespace HockeyScoresVS
             }
         }
 
+        public bool _isGameLive;
+        public bool IsGameLive
+        {
+            get
+            {
+                return _isGameLive;
+            }
+            set
+            {
+                _isGameLive = value;
+                OnNotifyPropertyChanged("IsGameLive");
+            }
+        }
+
+        private bool ShowStartTime
+        {
+            get
+            {
+                return !HasGameStartedYet || ((HasGameStartedYet && (_period == "1" && TimeLeftInPeriod == "20:00") || _period == null) && !IsGameOver);
+            }
+        }
+
+        public string TimeDisplay
+        {
+            get
+            {
+                if (ShowStartTime)
+                {
+                    return StartTime;
+                }
+                else if (HasGameStartedYet && !IsGameOver)
+                {
+                    if (!IsGameLive)
+                    {
+                        IsGameLive = true;
+                    }
+
+                    if (_period == "5")
+                    {
+                        return Period;
+                    }
+
+                    if (SecondsLeftInPeriod == 0)
+                    {
+                        return $"End {Period}";
+                    }
+
+                    return $"{Period} {TimeLeftInPeriod}";
+                }
+                // Game is Over
+                else
+                {
+                    if (IsGameLive)
+                    {
+                        IsGameLive = false;
+                    }
+
+                    return FinalText;
+                }
+            }
+        }
+
         public GameGoals GameGoals { get; }
 
         public HockeyGame(string startTime, Team homeTeam, Team awayTeam, string id, string dateCode, string seasonCode)
@@ -263,22 +317,21 @@ namespace HockeyScoresVS
             this._id = id;
             this._dateCode = dateCode;
             this._seasonCode = seasonCode;
+            this._backgroundColor = DefaultColors.DefaultBackgroundColor;
 
             int initialInterval;
 
             if (HasGameStartedYet)
             {
                 initialInterval = DataRefreshInterval;
-                Task.Run(async () => await RefreshGameData());
+                Task.Run(async () => 
+                {
+                    await RefreshGameData();
+                });
             }
             else
             {
                 initialInterval = HasGameStartedCheckInterval;
-            }
-
-            if (HomeTeam.Name == ScoresToolWindowCommand.Instance.FavouriteTeam || AwayTeam.Name == ScoresToolWindowCommand.Instance.FavouriteTeam)
-            {
-                this.BorderColor = FavouriteBorderColor;
             }
 
             _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), initialInterval, initialInterval);
@@ -292,6 +345,7 @@ namespace HockeyScoresVS
                 {
                     _hasGameStarted = true;
                     OnNotifyPropertyChanged("HasGameStartedYet");
+                    OnNotifyPropertyChanged("TimeDisplay");
                     _refreshDataTimer.Change(DataRefreshInterval, DataRefreshInterval);
                 }
                 
@@ -309,15 +363,21 @@ namespace HockeyScoresVS
                 this.SecondsLeftInPeriod = gameData["sr"].Value<int>();
                 this.HomeTeamScore = gameData["h"]["tot"]["g"].Value<int>();
                 this.AwayTeamScore = gameData["a"]["tot"]["g"].Value<int>();
+                
                 // After the first time the scores are set the goal horn is enabled
-                _suppressGoalHorn = false;
+                if (_suppressGoalHorn)
+                {
+                    _suppressGoalHorn = false;
+                }
             }
             catch (Exception) { /* Don't crash VS if any of the above lines throw, just try to poll again next period */ }
 
             if (IsGameOver)
             {
                 OnNotifyPropertyChanged("IsGameOver");
+                OnNotifyPropertyChanged("TimeDisplay");
                 OnNotifyPropertyChanged("FinalText");
+                this.IsGameLive = false;
                 // Stop refreshing the game data if the game is over
                 _refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
@@ -326,27 +386,27 @@ namespace HockeyScoresVS
         private async Task GoalHorn()
         {
             await Task.Yield();
-            string originalBorderColor = BorderColor;
+            string originalBackgroundColor = BackgroundColor;
             for (int i = 0; i < 10; i++)
             {
-                BorderColor = GoalBorderColor;
+                BackgroundColor = GoalBackgroundColor;
                 Thread.Sleep(200);
 
                 // If the user changes their favourite team as a goal celebration is happening it could mess up the UI
-                if (BorderColor != GoalBorderColor)
+                if (BackgroundColor != GoalBackgroundColor)
                 {
-                    originalBorderColor = BorderColor;
+                    originalBackgroundColor = BackgroundColor;
                 }
                 else
                 {
-                    BorderColor = originalBorderColor;
+                    BackgroundColor = originalBackgroundColor;
                 }
                 
                 Thread.Sleep(200);
 
-                if (originalBorderColor != BorderColor)
+                if (originalBackgroundColor != BackgroundColor)
                 {
-                    originalBorderColor = BorderColor;
+                    originalBackgroundColor = BackgroundColor;
                 }
             }
         }
