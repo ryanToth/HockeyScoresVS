@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.VisualStudio.PlatformUI;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,54 +15,59 @@ using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
-    public class TodayGames : ObservableCollection<HockeyGame>, IDisposable
+    public class TodayGames : ObservableCollection<HockeyGame>, INotifyPropertyChanged, IDisposable
     {
-        private DateTime _currentGamesDate = DateTime.Now.Date;
+        public DateTime CurrentGamesDate = DateTime.Now.Date;
         private string cachedSeasonScheduleYears = "";
 
-        private List<RawGameInfo> _rawGameInfo;
-        private List<RawGameInfo> RawGameInfo
+        private string _favouriteTeam = "";
+        public string FavouriteTeam
         {
             get
             {
-                string currentSeasonScheduleYears = GetSeasonScheduleYear();
-                if (_rawGameInfo == null || currentSeasonScheduleYears != cachedSeasonScheduleYears)
-                {
-                    cachedSeasonScheduleYears = currentSeasonScheduleYears;
-                    WebRequest request = WebRequest.Create($"http://live.nhl.com/GameData/SeasonSchedule-{cachedSeasonScheduleYears}.json");
-                    WebResponse response = request.GetResponse();
+                return _favouriteTeam;
+            }
 
-                    Stream dataStream = response.GetResponseStream();
-                    StreamReader reader = new StreamReader(dataStream);
-
-                    string jsonFile = reader.ReadToEnd();
-                    reader.Close();
-                    response.Close();
-
-                    _rawGameInfo = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
-                }
-
-                return _rawGameInfo;
+            set
+            {
+                _favouriteTeam = value;
+                this.OrderGamesForStartTime();
+                this.MoveFavouriteTeamGame();
             }
         }
-        //private Timer _timer;
-        // Once every hour
-        //private int pollingInterval = 3600000;
+
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get
+            {
+                return _isLoading;
+            }
+            set
+            {
+                _isLoading = value;
+                OnNotifyPropertyChanged("IsLoading");
+            }
+        }
+
+        private List<RawGameInfo> _rawGameInfo;
+
         private object _lock = new object();
 
-        public TodayGames()
+        public TodayGames(string favouriteTeam)
         {
             lock(_lock)
             {
-                //this._timer = new Timer(CheckForTomorrow, new AutoResetEvent(true), 0, pollingInterval);
-                this.Initialize();
+                this.IsLoading = true;
+                this.Initialize(favouriteTeam).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
-        private void Initialize()
+        private async Task Initialize(string favouriteTeam)
         {
-            var todayStringCode = GetTodayStringCode();
-            var todaysGames = RawGameInfo.Where(x => x.est.Contains(todayStringCode));
+            string todayStringCode = GetTodayStringCode();
+            var todaysGames = await GetGameSchedule(todayStringCode);
+            this._favouriteTeam = favouriteTeam;
 
             List<HockeyGame> tempList = new List<HockeyGame>();
 
@@ -76,6 +83,31 @@ namespace HockeyScoresVS
             {
                 Add(game);
             }
+
+            this.MoveFavouriteTeamGame();
+
+            this.IsLoading = false;
+            OnNotifyPropertyChanged("IsLoading");
+            OnNotifyPropertyChanged("AnyGamesToday");
+        }
+
+        private async Task<IEnumerable<RawGameInfo>> GetGameSchedule(string todayStringCode)
+        {
+            string currentSeasonScheduleYears = GetSeasonScheduleYear();
+            if (_rawGameInfo == null || currentSeasonScheduleYears != cachedSeasonScheduleYears)
+            {
+                cachedSeasonScheduleYears = currentSeasonScheduleYears;
+                string jsonFile = await NetworkCalls.GetJsonFromApiAsync($"http://live.nhl.com/GameData/SeasonSchedule-{cachedSeasonScheduleYears}.json");
+
+                _rawGameInfo = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
+
+                if (_rawGameInfo == null)
+                {
+                    _rawGameInfo = new List<RawGameInfo>();
+                }
+            }
+
+            return _rawGameInfo.Where(x => x.est.Contains(todayStringCode));
         }
 
         /// <summary>
@@ -96,9 +128,9 @@ namespace HockeyScoresVS
 
         private string GetTodayStringCode()
         {
-            var day = _currentGamesDate.Day;
-            var year = _currentGamesDate.Year;
-            var month = _currentGamesDate.Month;
+            var day = CurrentGamesDate.Day;
+            var year = CurrentGamesDate.Year;
+            var month = CurrentGamesDate.Month;
 
             string dateCode = year.ToString();
             if (month < 10) dateCode += $"0{month}";
@@ -114,48 +146,76 @@ namespace HockeyScoresVS
             string years = "";
 
             // If we are getting games for after July 1st
-            if (_currentGamesDate.Month > 6 && _currentGamesDate.Day > 1)
+            if (CurrentGamesDate.Month > 6 && CurrentGamesDate.Day > 1)
             {
-                years = _currentGamesDate.Year.ToString() + (_currentGamesDate.Year + 1).ToString();
+                years = CurrentGamesDate.Year.ToString() + (CurrentGamesDate.Year + 1).ToString();
             }
             else
             {
-                years = (_currentGamesDate.Year - 1).ToString() + (_currentGamesDate.Year).ToString();
+                years = (CurrentGamesDate.Year - 1).ToString() + (CurrentGamesDate.Year).ToString();
             }
 
             return years;
         }
 
-        /*
-        private void CheckForTomorrow(object state)
+        private void MoveFavouriteTeamGame()
         {
-            lock(_lock)
+            if (FavouriteTeam != null)
             {
-                // Re-initialize the game data if it's tomorrow
-                if (_currentGamesDate < DateTime.Now.Date)
+                var game = this.FirstOrDefault(x => x.HomeTeam.TeamCode == FavouriteTeam || x.AwayTeam.TeamCode == FavouriteTeam);
+                if (game != null)
                 {
-                    this.Clear();
-                    this.Initialize();
+                    this.MoveItem(this.IndexOf(game), 0);
                 }
             }
         }
-        */
+
+        private void OrderGamesForStartTime()
+        {
+            List<HockeyGame> games = new List<HockeyGame>(this.AsEnumerable());
+            games.Sort();
+            this.Clear();
+            foreach (var game in games)
+            {
+                Add(game);
+            }
+        }
 
         public void ChangeGameDay(DateTime newDate)
         {
             lock (_lock)
             {
-                _currentGamesDate = newDate.Date;
+                CurrentGamesDate = newDate.Date;
                 this.Clear();
-                this.Initialize();
+                this.IsLoading = true;
+                this.Initialize(FavouriteTeam).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
+        public bool AnyGamesToday
+        {
+            get
+            {
+                return this.Any();
+            }
+        }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnNotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
+
         public void Dispose()
         {
-            //_timer.Change(Timeout.Infinite, Timeout.Infinite);
-            //_timer.Dispose();
-
             foreach (var game in this)
             {
                 game.Dispose();

@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
-    public class Goal : INotifyPropertyChanged
+    public class Goal : INotifyPropertyChanged, IComparable<Goal>
     {
-        private Player _scoredBy;
-        public Player ScoredBy
+        private int? _goalTime;
+
+        private string _scoredBy = "";
+        public string ScoredBy
         {
             get
             {
@@ -19,12 +21,12 @@ namespace HockeyScoresVS
             set
             {
                 _scoredBy = value;
-                OnNotifyPropertyChanged("ScoredBy");
+                OnNotifyPropertyChanged("GoalScoredText");
             }
         }
 
-        private Player _primaryAssist;
-        public Player PrimaryAssist
+        private string _primaryAssist = "";
+        public string PrimaryAssist
         {
             get
             {
@@ -33,12 +35,12 @@ namespace HockeyScoresVS
             set
             {
                 _primaryAssist = value;
-                OnNotifyPropertyChanged("PrimaryAssist");
+                OnNotifyPropertyChanged("AssistedByText");
             }
         }
 
-        private Player _secondaryAssist;
-        public Player SecondaryAssist
+        private string _secondaryAssist = "";
+        public string SecondaryAssist
         {
             get
             {
@@ -47,7 +49,56 @@ namespace HockeyScoresVS
             set
             {
                 _secondaryAssist = value;
-                OnNotifyPropertyChanged("SecondaryAssist");
+                OnNotifyPropertyChanged("AssistedByText");
+            }
+        }
+
+        private string _team = "";
+        public string Team
+        {
+            get
+            {
+                return _team;
+            }
+            set
+            {
+                _team = value;
+                OnNotifyPropertyChanged("GoalScoredText");
+            }
+        }
+
+        public string GoalScoredText
+        {
+            get
+            {
+                if (Team != "" && ScoredBy != "")
+                {
+                    return $"{Team} {ScoredBy}";
+                }
+                else if (Team != "")
+                {
+                    return $"{Team} scored a goal";
+                }
+
+                return "Goal was scored";
+                
+            }
+        }
+
+        public string AssistedByText
+        {
+            get
+            {
+                if (PrimaryAssist == "")
+                {
+                    return "Unassisted";
+                }
+                else if (SecondaryAssist == "")
+                {
+                    return $"{PrimaryAssist}";
+                }
+                
+                return $"{PrimaryAssist}, {SecondaryAssist}";
             }
         }
 
@@ -55,11 +106,25 @@ namespace HockeyScoresVS
         {
         }
 
-        public Goal(Player scoredBy, Player primaryAssist, Player secondaryAssist)
+        public Goal(string team, string goalString, int? secondsInPeriod)
         {
-            this._scoredBy = scoredBy;
-            this._primaryAssist = primaryAssist;
-            this._secondaryAssist = secondaryAssist;
+            this.Team = team;
+            try
+            {
+                this.ScoredBy = goalString.Split(',')[0];
+            }
+            catch (Exception) { }
+            try
+            {
+                this.PrimaryAssist = goalString.Split(',')[1];
+            }
+            catch (Exception) { }
+            try
+            {
+                this.SecondaryAssist = goalString.Split(',')[2];
+            }
+            catch (Exception) { }
+            this._goalTime = secondsInPeriod;
         }
 
         #region INotifyPropertyChanged Members
@@ -72,6 +137,22 @@ namespace HockeyScoresVS
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        #endregion
+
+        #region IComparable Members
+        public int CompareTo(Goal other)
+        {
+            if (this._goalTime.HasValue && !other._goalTime.HasValue) return -1;
+            else if (!this._goalTime.HasValue && other._goalTime.HasValue) return 1;
+            else if (this._goalTime.HasValue && other._goalTime.HasValue)
+            {
+                if (this._goalTime.Value < other._goalTime.Value) return -1;
+                else if (this._goalTime.Value > other._goalTime.Value) return 1;
+            }
+
+            return 0;
         }
 
         #endregion

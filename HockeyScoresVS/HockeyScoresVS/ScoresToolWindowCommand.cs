@@ -100,8 +100,33 @@ namespace HockeyScoresVS
                 throw new NotSupportedException("Cannot create tool window");
             }
 
+            ScoresToolWindow scoresToolWindow = this.package.FindToolWindow(typeof(ScoresToolWindow), 0, false) as ScoresToolWindow;
+            if (window != null)
+            {
+                scoresToolWindow.SetFavouriteTeam(_favouriteTeam);
+            }
+
             IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+        }
+
+        private string _favouriteTeam;
+        public string FavouriteTeam
+        {
+            get
+            {
+                return _favouriteTeam;
+            }
+
+            set
+            {
+                _favouriteTeam = value;
+                ScoresToolWindow window = this.package.FindToolWindow(typeof(ScoresToolWindow), 0, false) as ScoresToolWindow;
+                if (window != null)
+                {
+                    window.SetFavouriteTeam(_favouriteTeam);
+                }
+            }
         }
     }
 }
