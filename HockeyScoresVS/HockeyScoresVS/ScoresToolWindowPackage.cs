@@ -17,6 +17,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
 using System.Windows.Forms;
 using System.ComponentModel;
+using System.Threading;
 
 namespace HockeyScoresVS
 {
@@ -45,7 +46,7 @@ namespace HockeyScoresVS
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideOptionPage(typeof(OptionsPageGrid),
         "NHL Scores", "Favourite Team", 0, 0, true)]
-    public sealed class ScoresToolWindowPackage : Package
+    public sealed class ScoresToolWindowPackage : AsyncPackage
     {
         /// <summary>
         /// ScoresToolWindowPackage GUID string.
@@ -69,10 +70,10 @@ namespace HockeyScoresVS
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
         /// </summary>
-        protected override void Initialize()
+        protected async override System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             ScoresToolWindowCommand.Initialize(this);
-            base.Initialize();
+            await base.InitializeAsync(cancellationToken, progress);
 
             ScoresToolWindowCommand.Instance.FavouriteTeam = this.FavouriteTeam;
 
