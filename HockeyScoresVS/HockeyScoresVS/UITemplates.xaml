@@ -87,6 +87,7 @@
 
             <Label Content="{Binding TimeDisplay}" Foreground="{x:Static local:DefaultColors.DefaultTextColor}" HorizontalAlignment="Left" Margin="150,2,0,0" VerticalAlignment="Top" Width="80" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
             <Label Content="Live" Foreground="LawnGreen" Style="{StaticResource ShowLiveStyle}" DataContext="{Binding Path=IsGameLive}" HorizontalAlignment="Left" Margin="150,28,0,0" VerticalAlignment="Top" Width="80" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+            <Label Content="Intermission" Foreground="DeepSkyBlue" Style="{StaticResource ShowLiveStyle}" DataContext="{Binding Path=IsIntermission}" HorizontalAlignment="Left" Margin="150,28,0,0" VerticalAlignment="Top" Width="80" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
             
             <ContentControl Name="GoalsScoredContentControl" ContentTemplate="{StaticResource GoalsScoredTemplate}"  Content="{Binding}" Grid.Row="1"/>
         </Grid>

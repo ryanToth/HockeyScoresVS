@@ -258,6 +258,20 @@ namespace HockeyScoresVS
             }
         }
 
+        public bool _isIntermission;
+        public bool IsIntermission
+        {
+            get
+            {
+                return _isIntermission;
+            }
+            set
+            {
+                _isIntermission = value;
+                OnNotifyPropertyChanged("IsIntermission");
+            }
+        }
+
         private bool ShowStartTime
         {
             get
@@ -279,6 +293,7 @@ namespace HockeyScoresVS
                     if (!IsGameLive)
                     {
                         IsGameLive = true;
+                        IsIntermission = false;
                     }
 
                     if (_period == "5")
@@ -288,8 +303,12 @@ namespace HockeyScoresVS
 
                     if (SecondsLeftInPeriod == 0)
                     {
+                        IsGameLive = false;
+                        IsIntermission = true;
                         return $"End {Period}";
                     }
+
+                    IsIntermission = false;
 
                     return $"{Period} {TimeLeftInPeriod}";
                 }
@@ -299,6 +318,7 @@ namespace HockeyScoresVS
                     if (IsGameLive)
                     {
                         IsGameLive = false;
+                        IsIntermission = false;
                     }
 
                     return FinalText;
