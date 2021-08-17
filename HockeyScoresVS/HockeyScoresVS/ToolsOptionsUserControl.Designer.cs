@@ -36,47 +36,51 @@ namespace HockeyScoresVS
             this.groupBox = new System.Windows.Forms.GroupBox();
             this.groupBox.SuspendLayout();
             this.SuspendLayout();
+
             // 
             // teamsComboBox
             // 
             this.teamsComboBox.Items.AddRange(new object[] {
-            "",
-            "TOR",
-            "PIT",
-            "ANA",
-            "ARI",
-            "BOS",
-            "BUF",
-            "CAR",
-            "CBJ",
-            "COL",
-            "CGY",
-            "CHI",
-            "DAL",
-            "DET",
-            "EDM",
-            "FLA",
-            "LAK",
-            "MIN",
-            "MTL",
-            "OTT",
-            "NJD",
-            "NSH",
-            "NYR",
-            "NYI",
-            "PHI",
-            "SJS",
-            "STL",
-            "TBL",
-            "VAN",
-            "VGK",
-            "WPG",
-            "WSH"});
+                string.Empty,
+                "TOR",
+                "PIT",
+                "ANA",
+                "ARI",
+                "BOS",
+                "BUF",
+                "CAR",
+                "CBJ",
+                "COL",
+                "CGY",
+                "CHI",
+                "DAL",
+                "DET",
+                "EDM",
+                "FLA",
+                "LAK",
+                "MIN",
+                "MTL",
+                "OTT",
+                "NJD",
+                "NSH",
+                "NYR",
+                "NYI",
+                "PHI",
+                "SEA",
+                "SJS",
+                "STL",
+                "TBL",
+                "VAN",
+                "VGK",
+                "WPG",
+                "WSH"});
+
             this.teamsComboBox.Location = new System.Drawing.Point(112, 24);
             this.teamsComboBox.Name = "teamsComboBox";
             this.teamsComboBox.Size = new System.Drawing.Size(150, 21);
             this.teamsComboBox.TabIndex = 0;
             this.teamsComboBox.SelectedIndexChanged += new System.EventHandler(this.teamsComboBox_SelectedIndexChanged);
+            
             // 
             // favouriteTeamLabel
             // 
@@ -86,6 +90,7 @@ namespace HockeyScoresVS
             this.favouriteTeamLabel.Size = new System.Drawing.Size(100, 23);
             this.favouriteTeamLabel.TabIndex = 1;
             this.favouriteTeamLabel.Text = "Favourite Team: ";
+            
             // 
             // groupBox
             // 
@@ -97,6 +102,7 @@ namespace HockeyScoresVS
             this.groupBox.TabIndex = 0;
             this.groupBox.TabStop = false;
             this.groupBox.Text = "NHL Scores Settings";
+            
             // 
             // ToolsOptionsUserControl
             // 
@@ -107,7 +113,6 @@ namespace HockeyScoresVS
             this.Size = new System.Drawing.Size(401, 77);
             this.groupBox.ResumeLayout(false);
             this.ResumeLayout(false);
-
         }
 
         #endregion

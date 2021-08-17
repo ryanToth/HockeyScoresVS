@@ -1,11 +1,5 @@
 ﻿using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
@@ -18,9 +12,9 @@ namespace HockeyScoresVS
 
         public static string TeamNameConverter(string abrv)
         {
-            if (abrv == null)
+            if (string.IsNullOrEmpty(abrv))
             {
-                return "";
+                return string.Empty;
             }
 
             switch (abrv)
@@ -49,6 +43,7 @@ namespace HockeyScoresVS
                 case "NYR": return "NY Rangers";
                 case "NYI": return "NY Islanders";
                 case "PHI": return "Philedalphia";
+                case "SEA": return "Seattle";
                 case "SJS": return "San Jose";
                 case "STL": return "St Louis";
                 case "TBL": return "Tampa Bay";
@@ -57,7 +52,6 @@ namespace HockeyScoresVS
                 case "WPG": return "Winnipeg";
                 case "WSH": return "Washington";
             }
-
 
             return abrv;
         }

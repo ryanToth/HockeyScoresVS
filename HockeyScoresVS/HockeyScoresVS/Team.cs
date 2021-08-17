@@ -1,30 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace HockeyScoresVS
 {
     public class Team
     {
-        public string TeamCode { get; private set; }
+        public string TeamCode { get; }
 
-        public string Name
-        {
-            get
-            {
-                return Converters.TeamNameConverter(TeamCode);
-            }
-        }
+        public string Name => Converters.TeamNameConverter(this.TeamCode);
 
-        public string LogoPath
-        {
-            get
-            {
-                return $"Icons/Logos/{TeamCode}.gif";
-            }
-        }
+        public string LogoPath => $"Icons/Logos/{this.TeamCode}.gif";
 
         public List<Goal> Goals { get; }
 

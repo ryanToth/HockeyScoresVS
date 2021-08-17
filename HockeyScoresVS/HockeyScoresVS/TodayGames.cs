@@ -1,80 +1,75 @@
-﻿using Microsoft.VisualStudio.PlatformUI;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
+using Newtonsoft.Json;
 
 namespace HockeyScoresVS
 {
     public class TodayGames : ObservableCollection<HockeyGame>, INotifyPropertyChanged, IDisposable
     {
         public DateTime CurrentGamesDate = DateTime.Now.Date;
-        private string cachedSeasonScheduleYears = "";
+        private string cachedSeasonScheduleYears = string.Empty;
 
-        private string _favouriteTeam = "";
+        private string favouriteTeam = string.Empty;
         public string FavouriteTeam
         {
             get
             {
-                return _favouriteTeam;
+                return this.favouriteTeam;
             }
 
             set
             {
-                _favouriteTeam = value;
+                this.favouriteTeam = value;
                 this.OrderGamesForStartTime();
                 this.MoveFavouriteTeamGame();
             }
         }
 
-        private bool _isLoading;
+        private bool isLoading;
         public bool IsLoading
         {
             get
             {
-                return _isLoading;
+                return this.isLoading;
             }
             set
             {
-                _isLoading = value;
-                OnNotifyPropertyChanged("IsLoading");
+                this.isLoading = value;
+                this.OnNotifyPropertyChanged("IsLoading");
             }
         }
 
-        private List<RawGameInfo> _rawGameInfo;
+        private List<RawGameInfo> rawGameInfo;
 
-        private object _lock = new object();
+        private object syncLock = new object();
 
         public TodayGames(string favouriteTeam)
         {
-            lock(_lock)
+            lock(syncLock)
             {
                 this.IsLoading = true;
-                this.Initialize(favouriteTeam).ConfigureAwait(continueOnCapturedContext: false);
+                this.InitializeAsync(favouriteTeam).Forget();
             }
         }
 
-        private async Task Initialize(string favouriteTeam)
+        private async Task InitializeAsync(string favouriteTeam)
         {
-            string todayStringCode = GetTodayStringCode();
-            var todaysGames = await GetGameSchedule(todayStringCode);
-            this._favouriteTeam = favouriteTeam;
+            string todayStringCode = this.GetTodayStringCode();
+            var todaysGames = await this.GetGameScheduleAsync(todayStringCode);
+            this.favouriteTeam = favouriteTeam;
 
             List<HockeyGame> tempList = new List<HockeyGame>();
 
             foreach(var game in todaysGames)
             { 
-                tempList.Add(new HockeyGame(ConvertRawDateToReadableString(game.est, todayStringCode), 
-                    new Team(game.h), new Team(game.a), game.id, todayStringCode, cachedSeasonScheduleYears));
+                tempList.Add(new HockeyGame(this.ConvertRawDateToReadableString(game.est, todayStringCode), 
+                    new Team(game.h), new Team(game.a), game.id, todayStringCode, this.cachedSeasonScheduleYears));
             }
 
             tempList.Sort();
@@ -87,27 +82,27 @@ namespace HockeyScoresVS
             this.MoveFavouriteTeamGame();
 
             this.IsLoading = false;
-            OnNotifyPropertyChanged("IsLoading");
-            OnNotifyPropertyChanged("AnyGamesToday");
+            this.OnNotifyPropertyChanged("IsLoading");
+            this.OnNotifyPropertyChanged("AnyGamesToday");
         }
 
-        private async Task<IEnumerable<RawGameInfo>> GetGameSchedule(string todayStringCode)
+        private async Task<IEnumerable<RawGameInfo>> GetGameScheduleAsync(string todayStringCode)
         {
-            string currentSeasonScheduleYears = GetSeasonScheduleYear();
-            if (_rawGameInfo == null || currentSeasonScheduleYears != cachedSeasonScheduleYears)
+            string currentSeasonScheduleYears = this.GetSeasonScheduleYear();
+            if (this.rawGameInfo == null || currentSeasonScheduleYears != this.cachedSeasonScheduleYears)
             {
-                cachedSeasonScheduleYears = currentSeasonScheduleYears;
+                this.cachedSeasonScheduleYears = currentSeasonScheduleYears;
                 string jsonFile = await NetworkCalls.GetJsonFromApiAsync($"http://live.nhl.com/GameData/SeasonSchedule-{cachedSeasonScheduleYears}.json");
 
-                _rawGameInfo = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
+                this.rawGameInfo = JsonConvert.DeserializeObject<List<RawGameInfo>>(jsonFile);
 
-                if (_rawGameInfo == null)
+                if (this.rawGameInfo == null)
                 {
-                    _rawGameInfo = new List<RawGameInfo>();
+                    this.rawGameInfo = new List<RawGameInfo>();
                 }
             }
 
-            return _rawGameInfo.Where(x => x.est.Contains(todayStringCode));
+            return this.rawGameInfo.Where(x => x.est.Contains(todayStringCode));
         }
 
         /// <summary>
@@ -128,9 +123,9 @@ namespace HockeyScoresVS
 
         private string GetTodayStringCode()
         {
-            var day = CurrentGamesDate.Day;
-            var year = CurrentGamesDate.Year;
-            var month = CurrentGamesDate.Month;
+            var day = this.CurrentGamesDate.Day;
+            var year = this.CurrentGamesDate.Year;
+            var month = this.CurrentGamesDate.Month;
 
             string dateCode = year.ToString();
             if (month < 10) dateCode += $"0{month}";
@@ -143,16 +138,16 @@ namespace HockeyScoresVS
 
         private string GetSeasonScheduleYear()
         {
-            string years = "";
+            string years = string.Empty;
 
             // If we are getting games for after July 1st
-            if (CurrentGamesDate.Month > 6 && CurrentGamesDate.Day > 1)
+            if (this.CurrentGamesDate.Month > 6 && this.CurrentGamesDate.Day > 1)
             {
-                years = CurrentGamesDate.Year.ToString() + (CurrentGamesDate.Year + 1).ToString();
+                years = this.CurrentGamesDate.Year.ToString() + (this.CurrentGamesDate.Year + 1).ToString();
             }
             else
             {
-                years = (CurrentGamesDate.Year - 1).ToString() + (CurrentGamesDate.Year).ToString();
+                years = (this.CurrentGamesDate.Year - 1).ToString() + this.CurrentGamesDate.Year.ToString();
             }
 
             return years;
@@ -160,7 +155,7 @@ namespace HockeyScoresVS
 
         private void MoveFavouriteTeamGame()
         {
-            if (FavouriteTeam != null)
+            if (this.FavouriteTeam != null)
             {
                 var game = this.FirstOrDefault(x => x.HomeTeam.TeamCode == FavouriteTeam || x.AwayTeam.TeamCode == FavouriteTeam);
                 if (game != null)
@@ -183,12 +178,12 @@ namespace HockeyScoresVS
 
         public void ChangeGameDay(DateTime newDate)
         {
-            lock (_lock)
+            lock (syncLock)
             {
-                CurrentGamesDate = newDate.Date;
+                this.CurrentGamesDate = newDate.Date;
                 this.Clear();
                 this.IsLoading = true;
-                this.Initialize(FavouriteTeam).ConfigureAwait(continueOnCapturedContext: false);
+                this.InitializeAsync(FavouriteTeam).Forget();
             }
         }
 
@@ -202,13 +197,15 @@ namespace HockeyScoresVS
 
         #region INotifyPropertyChanged Members
 
+#pragma warning disable CS0114 // Member hides inherited member; missing override keyword
         public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore CS0114 // Member hides inherited member; missing override keyword
 
         private void OnNotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
+            if (this.PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 

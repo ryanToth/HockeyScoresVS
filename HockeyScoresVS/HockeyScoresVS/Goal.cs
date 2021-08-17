@@ -1,68 +1,64 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HockeyScoresVS
 {
     public class Goal : INotifyPropertyChanged, IComparable<Goal>
     {
-        private int? _goalTime;
+        private int? goalTime;
 
-        private string _scoredBy = "";
+        private string scoredBy = string.Empty;
         public string ScoredBy
         {
             get
             {
-                return _scoredBy;
+                return scoredBy;
             }
             set
             {
-                _scoredBy = value;
+                scoredBy = value;
                 OnNotifyPropertyChanged("GoalScoredText");
             }
         }
 
-        private string _primaryAssist = "";
+        private string primaryAssist = string.Empty;
         public string PrimaryAssist
         {
             get
             {
-                return _primaryAssist;
+                return this.primaryAssist;
             }
             set
             {
-                _primaryAssist = value;
+                this.primaryAssist = value;
                 OnNotifyPropertyChanged("AssistedByText");
             }
         }
 
-        private string _secondaryAssist = "";
+        private string secondaryAssist = string.Empty;
         public string SecondaryAssist
         {
             get
             {
-                return _secondaryAssist;
+                return this.secondaryAssist;
             }
             set
             {
-                _secondaryAssist = value;
+                this.secondaryAssist = value;
                 OnNotifyPropertyChanged("AssistedByText");
             }
         }
 
-        private string _team = "";
+        private string team = string.Empty;
         public string Team
         {
             get
             {
-                return _team;
+                return this.team;
             }
             set
             {
-                _team = value;
+                this.team = value;
                 OnNotifyPropertyChanged("GoalScoredText");
             }
         }
@@ -71,13 +67,13 @@ namespace HockeyScoresVS
         {
             get
             {
-                if (Team != "" && ScoredBy != "")
+                if (!string.IsNullOrEmpty(this.Team) && !string.IsNullOrEmpty(this.ScoredBy))
                 {
-                    return $"{Team} {ScoredBy}";
+                    return $"{this.Team} {this.ScoredBy}";
                 }
-                else if (Team != "")
+                else if (!string.IsNullOrEmpty(this.Team))
                 {
-                    return $"{Team} scored a goal";
+                    return $"{this.Team} scored a goal";
                 }
 
                 return "Goal was scored";
@@ -89,42 +85,42 @@ namespace HockeyScoresVS
         {
             get
             {
-                if (PrimaryAssist == "")
+                if (string.IsNullOrEmpty(this.PrimaryAssist))
                 {
                     return "Unassisted";
                 }
-                else if (SecondaryAssist == "")
+                else if (string.IsNullOrEmpty(this.SecondaryAssist))
                 {
-                    return $"{PrimaryAssist}";
+                    return $"{this.PrimaryAssist}";
                 }
                 
-                return $"{PrimaryAssist}, {SecondaryAssist}";
+                return $"{this.PrimaryAssist}, {this.SecondaryAssist}";
             }
-        }
-
-        public Goal()
-        {
         }
 
         public Goal(string team, string goalString, int? secondsInPeriod)
         {
             this.Team = team;
+
             try
             {
                 this.ScoredBy = goalString.Split(',')[0];
             }
             catch (Exception) { }
+
             try
             {
                 this.PrimaryAssist = goalString.Split(',')[1];
             }
             catch (Exception) { }
+
             try
             {
                 this.SecondaryAssist = goalString.Split(',')[2];
             }
             catch (Exception) { }
-            this._goalTime = secondsInPeriod;
+
+            this.goalTime = secondsInPeriod;
         }
 
         #region INotifyPropertyChanged Members
@@ -133,9 +129,9 @@ namespace HockeyScoresVS
 
         private void OnNotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
+            if (this.PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -144,12 +140,12 @@ namespace HockeyScoresVS
         #region IComparable Members
         public int CompareTo(Goal other)
         {
-            if (this._goalTime.HasValue && !other._goalTime.HasValue) return -1;
-            else if (!this._goalTime.HasValue && other._goalTime.HasValue) return 1;
-            else if (this._goalTime.HasValue && other._goalTime.HasValue)
+            if (this.goalTime.HasValue && !other.goalTime.HasValue) return -1;
+            else if (!this.goalTime.HasValue && other.goalTime.HasValue) return 1;
+            else if (this.goalTime.HasValue && other.goalTime.HasValue)
             {
-                if (this._goalTime.Value < other._goalTime.Value) return -1;
-                else if (this._goalTime.Value > other._goalTime.Value) return 1;
+                if (this.goalTime.Value < other.goalTime.Value) return -1;
+                else if (this.goalTime.Value > other.goalTime.Value) return 1;
             }
 
             return 0;
