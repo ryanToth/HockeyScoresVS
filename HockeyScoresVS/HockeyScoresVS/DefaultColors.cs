@@ -1,5 +1,5 @@
-﻿using Microsoft.VisualStudio.PlatformUI;
-using System.Windows.Media;
+﻿using System.Windows.Media;
+using Microsoft.VisualStudio.PlatformUI;
 
 namespace HockeyScoresVS
 {

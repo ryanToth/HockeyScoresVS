@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Threading;
+using Newtonsoft.Json.Linq;
 
 namespace HockeyScoresVS
 {
@@ -12,12 +12,14 @@ namespace HockeyScoresVS
     {
         // Every 5 seconds
         private const int DataRefreshInterval = 5000;
+
         // Every 10 minutes
         private const int HasGameStartedCheckInterval = 600000;
-        private Timer _refreshDataTimer;
-        private string _id;
-        private string _dateCode;
-        private string _seasonCode;
+
+        private Timer refreshDataTimer;
+        private string id;
+        private string dateCode;
+        private string seasonCode;
         
         public const string GoalBackgroundColor = "IndianRed";
 
@@ -27,28 +29,27 @@ namespace HockeyScoresVS
 
         public Team AwayTeam { get; }
 
-        private int _secondsLeftInPeriod;
+        private int secondsLeftInPeriod;
         public int SecondsLeftInPeriod
         {
             get
             {
-                return _secondsLeftInPeriod;
+                return this.secondsLeftInPeriod;
             }
 
             set
             {
-                _secondsLeftInPeriod = value;
-                OnNotifyPropertyChanged("TimeDisplay");
+                this.secondsLeftInPeriod = value;
+                this.OnNotifyPropertyChanged("TimeDisplay");
             }
         }
 
-        private string _period;
-
+        private string period;
         public string Period
         {
             get
             {
-                switch (_period)
+                switch (this.period)
                 {
                     case "1":
                         return "1st";
@@ -60,62 +61,62 @@ namespace HockeyScoresVS
                         return "OT";
                 }
 
-                if (_isPlayoffs && Int32.TryParse(_period, out int periodNum))
+                if (this.IsPlayoffs && int.TryParse(this.period, out int periodNum))
                 {
                     return (periodNum - 3).ToString() + "OT";
                 }
                 else
                 {
-                    switch (_period)
+                    switch (this.period)
                     {
                         case "5":
                             return "Shootout";
                         default:
-                            return _period;
+                            return period;
                     }
                 }
             }
 
             set
             {
-                _period = value;
-                OnNotifyPropertyChanged("Period");
+                this.period = value;
+                this.OnNotifyPropertyChanged("Period");
             }
         }
 
-        private bool _isPlayoffs
+        private bool IsPlayoffs
         {
             get
             {
-                DateTime gameDay = DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
+                DateTime gameDay = DateTime.ParseExact(this.dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
 
                 // Assume playoffs happen after 4/11 and before September
                 return (gameDay.Month > 4 && gameDay.Month < 8) || (gameDay.Month == 4 && gameDay.Day > 11);
             }
         }
 
-        private int _homeGoals;
+        private int homeGoals;
         public int HomeTeamScore
         {
             get
             {
-                return _homeGoals;
+                return this.homeGoals;
             }
 
             set
             {
-                if (_homeGoals != value)
+                if (this.homeGoals != value)
                 {
-                    if (!_suppressGoalHorn && value > _homeGoals)
+                    if (!this.suppressGoalHorn && value > this.homeGoals)
                     {
                         Task.Run(async () =>
                         {
-                            await GoalHorn();
-                        });
+                            await this.GoalHornAsync();
+                        }).Forget();
                     }
 
-                    _homeGoals = value;
-                    OnNotifyPropertyChanged("HomeTeamScore");
+                    this.homeGoals = value;
+                    this.OnNotifyPropertyChanged("HomeTeamScore");
                 }
             }
         }
@@ -132,16 +133,16 @@ namespace HockeyScoresVS
             {
                 if (_awayGoals != value)
                 {
-                    if (!_suppressGoalHorn && value > _awayGoals)
+                    if (!suppressGoalHorn && value > _awayGoals)
                     {
                         Task.Run(async () =>
                         {
-                            await GoalHorn();
-                        });
+                            await GoalHornAsync();
+                        }).Forget();
                     }
 
                     _awayGoals = value;
-                    OnNotifyPropertyChanged("AwayTeamScore");
+                    this.OnNotifyPropertyChanged("AwayTeamScore");
                 }
             }
         }
@@ -150,11 +151,18 @@ namespace HockeyScoresVS
         {
             get
             {
-                if (SecondsLeftInPeriod != 0)
+                if (this.SecondsLeftInPeriod != 0)
                 {
-                    string time = $"{SecondsLeftInPeriod / 60}:";
-                    if (SecondsLeftInPeriod % 60 < 10) time += $"0{SecondsLeftInPeriod % 60}";
-                    else time += (SecondsLeftInPeriod % 60).ToString();
+                    string time = $"{this.SecondsLeftInPeriod / 60}:";
+
+                    if (this.SecondsLeftInPeriod % 60 < 10)
+                    {
+                        time += $"0{this.SecondsLeftInPeriod % 60}";
+                    }
+                    else
+                    {
+                        time += (this.SecondsLeftInPeriod % 60).ToString();
+                    }
 
                     return time;
                 }
@@ -163,14 +171,14 @@ namespace HockeyScoresVS
             }
         }
 
-        private bool _hasGameStarted = false;
+        private bool hasGameStarted = false;
         public bool HasGameStartedYet
         {
             get
             {
-                return DateTime.Now.Date == DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date &&
+                return DateTime.Now.Date == DateTime.ParseExact(this.dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date &&
                     DateTime.Now.TimeOfDay > DateTime.Parse(this.StartTime, CultureInfo.CurrentCulture).TimeOfDay ||
-                    DateTime.Now.Date > DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
+                    DateTime.Now.Date > DateTime.ParseExact(this.dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
             }
         }
 
@@ -178,97 +186,97 @@ namespace HockeyScoresVS
         {
             get
             {
-                return AwayTeamScore != HomeTeamScore && _secondsLeftInPeriod == 0 && Int32.Parse(_period) >= 3 ||
-                    DateTime.Now.Date > DateTime.ParseExact(this._dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
+                return this.AwayTeamScore != this.HomeTeamScore && this.secondsLeftInPeriod == 0 && int.Parse(this.period) >= 3 ||
+                    DateTime.Now.Date > DateTime.ParseExact(this.dateCode, "yyyyMMdd", CultureInfo.InvariantCulture).Date;
             }
         }
 
-        private bool _suppressGoalHorn = true;
+        private bool suppressGoalHorn = true;
 
-        private string _backgroundColor;
+        private string backgroundColor;
         public string BackgroundColor
         {
             get
             {
-                return _backgroundColor;
+                return this.backgroundColor;
             }
             set
             {
-                _backgroundColor = value;
-                OnNotifyPropertyChanged("BackgroundColor");
+                this.backgroundColor = value;
+                this.OnNotifyPropertyChanged("BackgroundColor");
             }
         }
 
-        private bool _isSelected = false;
+        private bool isSelected = false;
         public bool IsSelected
         {
             get
             {
-                return _isSelected;
+                return this.isSelected;
             }
             set
             {
-                _isSelected = value;
-                OnNotifyPropertyChanged("IsSelected");
+                this.isSelected = value;
+                this.OnNotifyPropertyChanged("IsSelected");
 
-                if (_isSelected)
-                { 
-                    this.GameGoals.GetUpdateScoringSummary().ConfigureAwait(continueOnCapturedContext: false);
+                if (this.isSelected)
+                {
+                    this.GameGoals.GetUpdateScoringSummaryAsync().Forget();
                 }
             }
         }
 
-        private string _finalText = "Final";
+        private const string finalText = "Final";
         public string FinalText
         {
             get
             {
-                if (Int32.TryParse(_period, out int periodNum) && (_isPlayoffs || periodNum == 4))
+                if (int.TryParse(this.period, out int periodNum) && (this.IsPlayoffs || periodNum == 4))
                 {
                     string OTNumber = "";
 
                     if (periodNum > 3)
                     {
                         OTNumber = periodNum > 4 ? $" {(periodNum - 3).ToString()}" : "  ";
-                        return $"{OTNumber}OT\n{_finalText}";
+                        return $"{OTNumber}OT\n{finalText}";
                     }
 
-                    return _finalText;
+                    return finalText;
                 }
-                else if (_period == "5")
+                else if (period == "5")
                 {
-                    return $"Shootout\n    {_finalText}";
+                    return $"Shootout\n    {finalText}";
                 }
 
-                return _finalText;
+                return finalText;
             }
         }
 
-        public bool _isGameLive;
+        public bool isGameLive;
         public bool IsGameLive
         {
             get
             {
-                return _isGameLive;
+                return this.isGameLive;
             }
             set
             {
-                _isGameLive = value;
-                OnNotifyPropertyChanged("IsGameLive");
+                this.isGameLive = value;
+                this.OnNotifyPropertyChanged("IsGameLive");
             }
         }
 
-        public bool _isIntermission;
+        public bool isIntermission;
         public bool IsIntermission
         {
             get
             {
-                return _isIntermission;
+                return this.isIntermission;
             }
             set
             {
-                _isIntermission = value;
-                OnNotifyPropertyChanged("IsIntermission");
+                this.isIntermission = value;
+                this.OnNotifyPropertyChanged("IsIntermission");
             }
         }
 
@@ -276,7 +284,7 @@ namespace HockeyScoresVS
         {
             get
             {
-                return !HasGameStartedYet || ((HasGameStartedYet && (_period == "1" && TimeLeftInPeriod == "20:00") || _period == null) && !IsGameOver);
+                return !this.HasGameStartedYet || ((this.HasGameStartedYet && (this.period == "1" && this.TimeLeftInPeriod == "20:00") || this.period == null) && !this.IsGameOver);
             }
         }
 
@@ -284,44 +292,44 @@ namespace HockeyScoresVS
         {
             get
             {
-                if (ShowStartTime)
+                if (this.ShowStartTime)
                 {
-                    return StartTime;
+                    return this.StartTime;
                 }
-                else if (HasGameStartedYet && !IsGameOver)
+                else if (this.HasGameStartedYet && !this.IsGameOver)
                 {
-                    if (!IsGameLive)
+                    if (!this.IsGameLive)
                     {
-                        IsGameLive = true;
-                        IsIntermission = false;
+                        this.IsGameLive = true;
+                        this.IsIntermission = false;
                     }
 
-                    if (_period == "5")
+                    if (this.period == "5")
                     {
-                        return Period;
+                        return this.Period;
                     }
 
-                    if (SecondsLeftInPeriod == 0)
+                    if (this.SecondsLeftInPeriod == 0)
                     {
-                        IsGameLive = false;
-                        IsIntermission = true;
-                        return $"End {Period}";
+                        this.IsGameLive = false;
+                        this.IsIntermission = true;
+                        return $"End {this.Period}";
                     }
 
-                    IsIntermission = false;
+                    this.IsIntermission = false;
 
-                    return $"{Period} {TimeLeftInPeriod}";
+                    return $"{this.Period} {this.TimeLeftInPeriod}";
                 }
-                // Game is Over
+                // Game is over
                 else
                 {
-                    if (IsGameLive)
+                    if (this.IsGameLive)
                     {
-                        IsGameLive = false;
-                        IsIntermission = false;
+                        this.IsGameLive = false;
+                        this.IsIntermission = false;
                     }
 
-                    return FinalText;
+                    return this.FinalText;
                 }
             }
         }
@@ -334,50 +342,50 @@ namespace HockeyScoresVS
             this.StartTime = startTime;
             this.HomeTeam = homeTeam;
             this.AwayTeam = awayTeam;
-            this._id = id;
-            this._dateCode = dateCode;
-            this._seasonCode = seasonCode;
-            this._backgroundColor = DefaultColors.DefaultBackgroundColor;
+            this.id = id;
+            this.dateCode = dateCode;
+            this.seasonCode = seasonCode;
+            this.backgroundColor = DefaultColors.DefaultBackgroundColor;
 
             int initialInterval;
 
-            if (HasGameStartedYet)
+            if (this.HasGameStartedYet)
             {
                 initialInterval = DataRefreshInterval;
-                Task.Run(async () => 
+                Task.Run(async () =>
                 {
-                    await RefreshGameData();
-                });
+                    await RefreshGameDataAsync();
+                }).Forget();
             }
             else
             {
                 initialInterval = HasGameStartedCheckInterval;
             }
 
-            _refreshDataTimer = new Timer(RefreshGameData, new AutoResetEvent(true), initialInterval, initialInterval);
+            this.refreshDataTimer = new Timer((state) => this.RefreshGameDataAsync(state).Forget(), new AutoResetEvent(true), initialInterval, initialInterval);
         }
 
-        private async void RefreshGameData(object state)
+        private async Task RefreshGameDataAsync(object state)
         {
-            if (HasGameStartedYet && !IsGameOver)
+            if (this.HasGameStartedYet && !this.IsGameOver)
             {
-                if (!_hasGameStarted)
+                if (!this.hasGameStarted)
                 {
-                    _hasGameStarted = true;
-                    OnNotifyPropertyChanged("HasGameStartedYet");
-                    OnNotifyPropertyChanged("TimeDisplay");
-                    _refreshDataTimer.Change(DataRefreshInterval, DataRefreshInterval);
+                    this.hasGameStarted = true;
+                    this.OnNotifyPropertyChanged("HasGameStartedYet");
+                    this.OnNotifyPropertyChanged("TimeDisplay");
+                    this.refreshDataTimer.Change(DataRefreshInterval, DataRefreshInterval);
                 }
                 
-                await RefreshGameData();
+                await this.RefreshGameDataAsync();
             }
         }
 
-        private async Task RefreshGameData()
+        private async Task RefreshGameDataAsync()
         {
             try
             {
-                JObject gameData = await NetworkCalls.ApiCallAsync($"http://live.nhl.com/GameData/{_seasonCode}/{_id}/gc/gcsb.jsonp");
+                JObject gameData = await NetworkCalls.ApiCallAsync($"http://live.nhl.com/GameData/{seasonCode}/{id}/gc/gcsb.jsonp");
 
                 this.Period = gameData["p"].Value<string>();
                 this.SecondsLeftInPeriod = gameData["sr"].Value<int>();
@@ -385,48 +393,49 @@ namespace HockeyScoresVS
                 this.AwayTeamScore = gameData["a"]["tot"]["g"].Value<int>();
                 
                 // After the first time the scores are set the goal horn is enabled
-                if (_suppressGoalHorn)
+                if (this.suppressGoalHorn)
                 {
-                    _suppressGoalHorn = false;
+                    this.suppressGoalHorn = false;
                 }
             }
             catch (Exception) { /* Don't crash VS if any of the above lines throw, just try to poll again next period */ }
 
-            if (IsGameOver)
+            if (this.IsGameOver)
             {
-                OnNotifyPropertyChanged("IsGameOver");
-                OnNotifyPropertyChanged("TimeDisplay");
-                OnNotifyPropertyChanged("FinalText");
+                this.OnNotifyPropertyChanged("IsGameOver");
+                this.OnNotifyPropertyChanged("TimeDisplay");
+                this.OnNotifyPropertyChanged("FinalText");
                 this.IsGameLive = false;
+
                 // Stop refreshing the game data if the game is over
-                _refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                this.refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
 
-        private async Task GoalHorn()
+        private async Task GoalHornAsync()
         {
             await Task.Yield();
-            string originalBackgroundColor = BackgroundColor;
+            string originalBackgroundColor = this.BackgroundColor;
             for (int i = 0; i < 10; i++)
             {
-                BackgroundColor = GoalBackgroundColor;
-                Thread.Sleep(200);
+                this.BackgroundColor = GoalBackgroundColor;
+                await Task.Delay(200);
 
                 // If the user changes their favourite team as a goal celebration is happening it could mess up the UI
-                if (BackgroundColor != GoalBackgroundColor)
+                if (this.BackgroundColor != GoalBackgroundColor)
                 {
                     originalBackgroundColor = BackgroundColor;
                 }
                 else
                 {
-                    BackgroundColor = originalBackgroundColor;
+                    this.BackgroundColor = originalBackgroundColor;
                 }
                 
-                Thread.Sleep(200);
+                await Task.Delay(200);
 
-                if (originalBackgroundColor != BackgroundColor)
+                if (originalBackgroundColor != this.BackgroundColor)
                 {
-                    originalBackgroundColor = BackgroundColor;
+                    originalBackgroundColor = this.BackgroundColor;
                 }
             }
         }
@@ -437,9 +446,9 @@ namespace HockeyScoresVS
 
         private void OnNotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
+            if (this.PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -463,8 +472,8 @@ namespace HockeyScoresVS
 
         public void Dispose()
         {
-            _refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            _refreshDataTimer.Dispose();
+            this.refreshDataTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            this.refreshDataTimer.Dispose();
         }
 
         #endregion
