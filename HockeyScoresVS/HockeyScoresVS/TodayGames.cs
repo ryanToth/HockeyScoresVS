@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
@@ -14,6 +15,9 @@ namespace HockeyScoresVS
     {
         public DateTime CurrentGamesDate = DateTime.Now.Date;
         private string cachedSeasonScheduleYears = string.Empty;
+
+        public string BackButtonPath => Path.Combine(Utilities.ExecutingAssemblyDirectory, "Icons/chevron-left-8x.png");
+        public string NextButtonPath => Path.Combine(Utilities.ExecutingAssemblyDirectory, "Icons/chevron-right-8x.png");
 
         private string favouriteTeam = string.Empty;
         public string FavouriteTeam

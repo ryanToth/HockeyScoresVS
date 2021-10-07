@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace HockeyScoresVS
 {
@@ -8,7 +9,7 @@ namespace HockeyScoresVS
 
         public string Name => Converters.TeamNameConverter(this.TeamCode);
 
-        public string LogoPath => $"Icons/Logos/{this.TeamCode}.gif";
+        public string LogoPath => Path.Combine(Utilities.ExecutingAssemblyDirectory, $"Icons/Logos/{this.TeamCode}.gif");
 
         public List<Goal> Goals { get; }
 
